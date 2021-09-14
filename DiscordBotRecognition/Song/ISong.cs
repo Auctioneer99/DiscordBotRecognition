@@ -10,5 +10,7 @@ namespace DiscordBotRecognition.Song
         DateTime BeginPlay { get; set; }
 
         Task<SongStream> GetStream();
+
+        Task<string> GetStreamUrl();
     }
 }

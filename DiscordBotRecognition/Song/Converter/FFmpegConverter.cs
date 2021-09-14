@@ -10,8 +10,9 @@ namespace DiscordBotRecognition.Song.Converter
     {
         public const string FORMAT = "s16le";
 
-        public async Task ConvertToPCM(SongStream streamIn, Stream streamOut)
+        public async Task ConvertToPCM(ISong song, Stream streamOut)
         {
+            var streamIn = await song.GetStream();
             var source = new StreamPipeSource(streamIn.Stream);
             var sink = new StreamPipeSink(streamOut);
             try

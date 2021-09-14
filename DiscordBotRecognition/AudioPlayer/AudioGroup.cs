@@ -56,7 +56,6 @@ namespace DiscordBotRecognition.AudioPlayer
         {
             if (_isPlaying)
             {
-                Console.WriteLine("Already Playing");
                 return;
             }
             Current = QueuedSongs.FirstOrDefault();
@@ -64,60 +63,19 @@ namespace DiscordBotRecognition.AudioPlayer
             {
                 return;
             }
-            Console.WriteLine("Playing song");
+
             Current.BeginPlay = DateTime.Now;
             _isPlaying = true;
 
-            Console.WriteLine(0);
-            SongStream streamContaineer = await Current.GetStream();
-            using (streamContaineer.Stream)
+            var streamOut = Me.GetPCMStream();
+            await _converter.ConvertToPCM(Current, streamOut);
+            if (_cancelTokenSource.IsCancellationRequested == false)
             {
-                Console.WriteLine(1);
-
-                var streamOut = Me.GetPCMStream();
-                Console.WriteLine(2);
-
-                await _converter.ConvertToPCM(streamContaineer, streamOut);
-
-                Console.WriteLine(4);
-
-                if (_cancelTokenSource.IsCancellationRequested == false)
-                {
-                    QueuedSongs.RemoveAt(0);
-                }
-                _isPlaying = false;
-                Console.WriteLine(3);
-                await PlayNextSong();
-                /*
-                using (outputStream.Stream)
-                {
-                    Console.WriteLine(2);
-                    using (var stream = Me.GetPCMStream())
-                    {
-                        try
-                        {
-                            Console.WriteLine(3);
-                            await outputStream.Stream.CopyToAsync(stream);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Error");
-                            Console.WriteLine(ex.Message);
-                        }
-                        finally
-                        {
-                            Console.WriteLine(4);
-                            await stream.FlushAsync();
-                            if (_cancelTokenSource.IsCancellationRequested == false)
-                            {
-                                QueuedSongs.RemoveAt(0);
-                            }
-                            _isPlaying = false;
-                            await PlayNextSong();
-                        }
-                    }
-                }*/
+                QueuedSongs.RemoveAt(0);
             }
+
+            _isPlaying = false;
+            await PlayNextSong();
         }
 
         public async ValueTask DisposeAsync()

@@ -5,6 +5,6 @@ namespace DiscordBotRecognition.Song.Converter
 {
     public interface ISongStreamConverter
     {
-        Task ConvertToPCM(SongStream streamIn, Stream streamOut);
+        Task ConvertToPCM(ISong song, Stream streamOut);
     }
 }

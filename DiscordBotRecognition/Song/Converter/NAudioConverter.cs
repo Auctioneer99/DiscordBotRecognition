@@ -7,19 +7,16 @@ namespace DiscordBotRecognition.Song.Converter
 {
     public class NAudioConverter : ISongStreamConverter
     {
-        public async Task ConvertToPCM(SongStream streamIn, Stream streamOut)
+        public async Task ConvertToPCM(ISong song, Stream streamOut)
         {
-            Console.WriteLine(11);
             try
             {
-                Console.WriteLine(12);
-                using (StreamMediaFoundationReader reader = new StreamMediaFoundationReader(streamIn.Stream))
+                var streamUrl = await song.GetStreamUrl();
+                using (MediaFoundationReader reader = new MediaFoundationReader(streamUrl))
                 {
-                    Console.WriteLine(13);
                     using (WaveStream pcmStream = WaveFormatConversionStream.CreatePcmStream(reader))
                     {
-                        Console.WriteLine(14);
-                        WaveFileWriter.CreateWaveFile(@"G:\VisualStudio Projects\DiscordBotRecognition\DiscordBotRecognition\bin\Debug\netcoreapp3.1\temp\something1.wav", pcmStream);
+                        await pcmStream.CopyToAsync(streamOut);
                     }
                 }
             }
@@ -27,6 +24,10 @@ namespace DiscordBotRecognition.Song.Converter
             {
                 Console.WriteLine("Error");
                 Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                await streamOut.FlushAsync();
             }
         }
     }

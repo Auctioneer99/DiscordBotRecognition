@@ -46,6 +46,12 @@ namespace DiscordBotRecognition.Song
             return containeer;
         }
 
+        public async Task<string> GetStreamUrl()
+        {
+            var streamManifest = await _client.Videos.Streams.GetManifestAsync(YOUTUBE_PREFIX + _url);
+            return streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate().Url;
+        }
+
         public override string ToString()
         {
             return $"{Name}, {Duration}";
