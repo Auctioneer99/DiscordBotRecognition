@@ -1,7 +1,8 @@
-﻿using System.IO;
+﻿using DiscordBotRecognition.Song;
+using System.IO;
 using System.Threading.Tasks;
 
-namespace DiscordBotRecognition.Song.Converter
+namespace DiscordBotRecognition.Converter
 {
     public interface ISongStreamConverter
     {

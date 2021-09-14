@@ -1,10 +1,11 @@
-﻿using FFMpegCore;
+﻿using DiscordBotRecognition.Song;
+using FFMpegCore;
 using FFMpegCore.Pipes;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace DiscordBotRecognition.Song.Converter
+namespace DiscordBotRecognition.Converter
 {
     public class FFmpegConverter : ISongStreamConverter
     {

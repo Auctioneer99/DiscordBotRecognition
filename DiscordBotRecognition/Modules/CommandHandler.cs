@@ -28,11 +28,13 @@ namespace DiscordBotRecognition.Modules
             _commands.CommandExecuted += OnCommandExecutedAsync;
             _client.MessageReceived += HandleCommandAsync;
         }
+
         private async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             if (!string.IsNullOrEmpty(result?.ErrorReason))
             {
                 Console.WriteLine(result.ErrorReason);
+                Console.WriteLine(result.Error.Value.ToString());
                 Console.WriteLine(result.Error.ToString());
                 Console.WriteLine(result.Error.Value.GetTypeCode().ToString());
             }

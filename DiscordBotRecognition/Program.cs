@@ -9,7 +9,7 @@ using DiscordBotRecognition.MusicSearch;
 using DiscordBotRecognition.Modules;
 using DiscordBotRecognition.AudioPlayer;
 using DiscordBotRecognition.Credentials;
-using DiscordBotRecognition.Song.Converter;
+using DiscordBotRecognition.Converter;
 
 namespace DiscordBotRecognition
 {
@@ -22,7 +22,7 @@ namespace DiscordBotRecognition
         {
             DiscordSocketClient client = new DiscordSocketClient();
             CommandService commands = new CommandService();
-            IMusicSearcher searcher = new YouTubeSearcher(Credential.GoogleAPIToken);
+            IMusicSearcher searcher = new SoundCloudSearcher(Credential.SoundCloudToken);// new YouTubeSearcher(Credential.GoogleAPIToken);
             ISongStreamConverter converter = new NAudioConverter();
             AudioService audio = new AudioService(searcher, converter);
 

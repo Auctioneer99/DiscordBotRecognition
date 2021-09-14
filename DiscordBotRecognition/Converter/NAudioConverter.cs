@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using DiscordBotRecognition.Song;
 using NAudio.Wave;
 
-namespace DiscordBotRecognition.Song.Converter
+namespace DiscordBotRecognition.Converter
 {
     public class NAudioConverter : ISongStreamConverter
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
+using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.MusicSearch;
 using DiscordBotRecognition.Song;
-using DiscordBotRecognition.Song.Converter;
 
 namespace DiscordBotRecognition.AudioPlayer
 {

@@ -1,6 +1,6 @@
 ﻿using DiscordBotRecognition.AudioPlayer.AudioClient;
+using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Song;
-using DiscordBotRecognition.Song.Converter;
 using System;
 using System.Collections.Generic;
 using System.IO;
