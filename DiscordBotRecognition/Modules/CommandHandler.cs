@@ -33,12 +33,9 @@ namespace DiscordBotRecognition.Modules
         {
             if (!string.IsNullOrEmpty(result?.ErrorReason))
             {
+                await context.Channel.SendMessageAsync($"```{result.ErrorReason}```");
                 Console.WriteLine(result.ErrorReason);
-                Console.WriteLine(result.Error.Value.ToString());
-                Console.WriteLine(result.Error.ToString());
-                Console.WriteLine(result.Error.Value.GetTypeCode().ToString());
             }
-
             var commandName = command.IsSpecified ? command.Value.Name : "A command";
             Console.WriteLine(new LogMessage(LogSeverity.Info,
                 "CommandExecution",

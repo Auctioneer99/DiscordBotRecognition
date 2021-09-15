@@ -17,14 +17,16 @@ namespace DiscordBotRecognition.AudioPlayer
         public ISong Current { get; private set; }
 
         private ISongStreamConverter _converter;
+        private AudioGroupSettings _settings;
         private bool _disposed = false;
         private bool _isPlaying = false;
         private CancellationTokenSource _cancelTokenSource;
 
-        public AudioGroup(IAudioClient me, ISongStreamConverter converter)
+        public AudioGroup(IAudioClient me, ISongStreamConverter converter, AudioGroupSettings settings)
         {
             Me = me;
             _converter = converter;
+            _settings = settings;
             Initialize();
         }
 
@@ -36,19 +38,36 @@ namespace DiscordBotRecognition.AudioPlayer
 
         public void AppendSong(ISong song)
         {
-            QueuedSongs.Add(song);
-            Task.Run(() => PlayNextSong());
+            if (_settings.MaxQueueSize > QueuedSongs.Count)
+            {
+                QueuedSongs.Add(song);
+                Task.Run(() => PlayNextSong());
+            }
+            else
+            {
+                throw new Exception($"Queue limit reached ({_settings.MaxQueueSize}), song not added");
+            }
         }
 
-        public void SkipSong(int id)
+        public ISong SkipSong(int id)
         {
+            id--;
             if (QueuedSongs.Count > id && id >= 0)
             {
-                QueuedSongs.RemoveAt(id);
+                ISong song = QueuedSongs[id];
                 if (id == 0)
                 {
                     _cancelTokenSource.Cancel();
                 }
+                else
+                {
+                    QueuedSongs.RemoveAt(id);
+                }
+                return song;
+            }
+            else
+            {
+                throw new Exception("Song id must be within size of queue");
             }
         }
 
@@ -64,17 +83,14 @@ namespace DiscordBotRecognition.AudioPlayer
                 return;
             }
 
-            Current.BeginPlay = DateTime.Now;
             _isPlaying = true;
-
+            _cancelTokenSource = new CancellationTokenSource();
             var streamOut = Me.GetPCMStream();
-            await _converter.ConvertToPCM(Current, streamOut);
-            if (_cancelTokenSource.IsCancellationRequested == false)
-            {
-                QueuedSongs.RemoveAt(0);
-            }
-
+            Current.BeginPlay = DateTime.Now;
+            await _converter.ConvertToPCM(Current, streamOut, _cancelTokenSource.Token);
+            QueuedSongs.RemoveAt(0);
             _isPlaying = false;
+
             await PlayNextSong();
         }
 

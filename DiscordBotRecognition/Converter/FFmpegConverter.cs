@@ -3,6 +3,7 @@ using FFMpegCore;
 using FFMpegCore.Pipes;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiscordBotRecognition.Converter
@@ -11,7 +12,7 @@ namespace DiscordBotRecognition.Converter
     {
         public const string FORMAT = "s16le";
 
-        public async Task ConvertToPCM(ISong song, Stream streamOut)
+        public async Task ConvertToPCM(ISong song, Stream streamOut, CancellationToken token)
         {
             var streamIn = await song.GetStream();
             var source = new StreamPipeSource(streamIn.Stream);

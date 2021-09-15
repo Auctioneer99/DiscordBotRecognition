@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
@@ -37,7 +38,7 @@ namespace DiscordBotRecognition.AudioPlayer
 
             DiscordAudioClient discordClient = new DiscordAudioClient(audioClient);
 
-            AudioGroup group = new AudioGroup(discordClient, _streamConverter);
+            AudioGroup group = new AudioGroup(discordClient, _streamConverter, AudioGroupSettings.Default());
             ConnectedChannels.TryAdd(id, group);
         }
 
@@ -46,6 +47,10 @@ namespace DiscordBotRecognition.AudioPlayer
             if (ConnectedChannels.TryRemove(id, out var client))
             {
                 await client.DisposeAsync();
+            }
+            else
+            {
+                throw new Exception("I must be in voice channel to perform this task");
             }
         }
 
@@ -57,14 +62,23 @@ namespace DiscordBotRecognition.AudioPlayer
                 group.AppendSong(song);
                 return song;
             }
-            return null;
+            else
+            {
+                throw new Exception("I must be in voice channel to perform this task");
+            }
         }
 
-        public async Task SkipSong(ulong id, int index = 0)
+        public async Task<ISong> SkipSong(ulong id, int index = 0)
         {
             if (ConnectedChannels.TryGetValue(id, out var group))
             {
-                group.SkipSong(index);
+                Console.WriteLine("eeror12");
+                return group.SkipSong(index);
+            }
+            else
+            {
+                Console.WriteLine("eeror");
+                throw new Exception("I must be in voice channel to perform this task");
             }
         }
 
@@ -74,7 +88,10 @@ namespace DiscordBotRecognition.AudioPlayer
             {
                 return group.QueuedSongs;
             }
-            return null;
+            else
+            {
+                throw new Exception("I must be in voice channel to perform this task");
+            }
         }
 
         public ISong GetCurrentSong(ulong id)
@@ -83,7 +100,10 @@ namespace DiscordBotRecognition.AudioPlayer
             {
                 return group.Current;
             }
-            return null;
+            else
+            {
+                throw new Exception("I must be in voice channel to perform this task");
+            }
         }
     }
 }

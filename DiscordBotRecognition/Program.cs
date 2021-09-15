@@ -22,7 +22,8 @@ namespace DiscordBotRecognition
         {
             DiscordSocketClient client = new DiscordSocketClient();
             CommandService commands = new CommandService();
-            IMusicSearcher searcher = new SoundCloudSearcher(Credential.SoundCloudToken);// new YouTubeSearcher(Credential.GoogleAPIToken);
+            YouTubeSearcher searcher = new YouTubeSearcher(Credential.GoogleAPIToken); //new SoundCloudSearcher();
+            //searcher.Initialize(Credential.SoundCloudToken);// new YouTubeSearcher(Credential.GoogleAPIToken);
             ISongStreamConverter converter = new NAudioConverter();
             AudioService audio = new AudioService(searcher, converter);
 

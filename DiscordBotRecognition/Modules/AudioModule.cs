@@ -26,8 +26,8 @@ namespace DiscordBotRecognition.Modules.Audio
         [Command("leave")]
         public async Task LeaveCmd()
         {
-            await ReplyAsync("```\nLeaving channel\n```");
             await _service.LeaveAudio(Context.Guild.Id);
+            await ReplyAsync("```\nLeaving channel\n```");
         }
 
         [Command("play", RunMode = RunMode.Async)]
@@ -39,9 +39,10 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("skip")]
-        public async Task Skip()
+        public async Task Skip(int songId = 1)
         {
-
+            var song = await _service.SkipSong(Context.Guild.Id, songId);
+            await ReplyAsync($"```\nSong skiped! {song.Name}\n```");
         }
 
         [Command("current")]

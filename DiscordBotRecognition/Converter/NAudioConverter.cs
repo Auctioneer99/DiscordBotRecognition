@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using DiscordBotRecognition.Song;
 using NAudio.Wave;
@@ -8,7 +9,7 @@ namespace DiscordBotRecognition.Converter
 {
     public class NAudioConverter : ISongStreamConverter
     {
-        public async Task ConvertToPCM(ISong song, Stream streamOut)
+        public async Task ConvertToPCM(ISong song, Stream streamOut, CancellationToken token)
         {
             try
             {
@@ -17,7 +18,7 @@ namespace DiscordBotRecognition.Converter
                 {
                     using (WaveStream pcmStream = WaveFormatConversionStream.CreatePcmStream(reader))
                     {
-                        await pcmStream.CopyToAsync(streamOut);
+                        await pcmStream.CopyToAsync(streamOut, token);
                     }
                 }
             }
