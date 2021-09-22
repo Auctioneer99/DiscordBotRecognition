@@ -2,10 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
 using DiscordBotRecognition.Converter;
-using DiscordBotRecognition.MusicSearch;
 using DiscordBotRecognition.Song;
 
 namespace DiscordBotRecognition.AudioPlayer
@@ -14,91 +12,108 @@ namespace DiscordBotRecognition.AudioPlayer
     {
         private readonly ConcurrentDictionary<ulong, AudioGroup> ConnectedChannels = new ConcurrentDictionary<ulong, AudioGroup>();
 
-        private IMusicSearcher _searcher;
-        private ISongStreamConverter _streamConverter;
-
-        public AudioService(IMusicSearcher searcher, ISongStreamConverter converter)
+        public bool IsConnected(ulong id)
         {
-            _searcher = searcher;
-            _streamConverter = converter;
+            return ConnectedChannels.TryGetValue(id, out var junk);
         }
 
-        public async Task JoinAudio(ulong id, IVoiceChannel target)
+        public async Task<bool> TryJoinAudio(ulong id, IAudioClient client, ISongStreamConverter streamConverter)
         {
-            if (ConnectedChannels.TryGetValue(id, out var client))
+            AudioGroup group = new AudioGroup(client, streamConverter, AudioGroupSettings.Default());
+            if (ConnectedChannels.TryAdd(id, group))
             {
-                return;
+                client.Disconnected += async () => await LeaveAudio(id);
+                return true;
             }
-            if (target.Guild.Id != id)
+            else
             {
-                return;
+                await group.DisposeAsync();
+                return false;
             }
-
-            var audioClient = await target.ConnectAsync();
-
-            DiscordAudioClient discordClient = new DiscordAudioClient(audioClient);
-
-            AudioGroup group = new AudioGroup(discordClient, _streamConverter, AudioGroupSettings.Default());
-            ConnectedChannels.TryAdd(id, group);
         }
 
         public async Task LeaveAudio(ulong id)
         {
-            if (ConnectedChannels.TryRemove(id, out var client))
+            if (CheckConnection(id, out var group))
             {
-                await client.DisposeAsync();
-            }
-            else
-            {
-                throw new Exception("I must be in voice channel to perform this task");
+                await group.DisposeAsync();
             }
         }
 
-        public async Task<ISong> AddSong(ulong id, string query)
+        public bool IsPaused(ulong id)
         {
-            if (ConnectedChannels.TryGetValue(id, out var group))
+            if (CheckConnection(id, out var group))
             {
-                ISong song = await _searcher.SearchSong(query);
+                return group.Paused;
+            }
+            return false;
+        }
+
+        public async Task AddSong(ulong id, ISong song)
+        {
+            if (CheckConnection(id, out var group))
+            {
                 group.AppendSong(song);
-                return song;
-            }
-            else
-            {
-                throw new Exception("I must be in voice channel to perform this task");
+                await group.Play(false);
             }
         }
 
-        public async Task<ISong> SkipSong(ulong id, int index = 0)
+        public async Task Play(ulong id, bool isResuming)
         {
-            if (ConnectedChannels.TryGetValue(id, out var group))
+            if (CheckConnection(id, out var group))
             {
-                Console.WriteLine("eeror12");
+                await group.Play(isResuming);
+            }
+        }
+
+        public async Task Resume(ulong id)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                await group.Play(true);
+            }
+        }
+
+        public void PauseSong(ulong id)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                group.PauseSong();
+            }
+        }
+
+        public ISong SkipSong(ulong id, int index = 0)
+        {
+            if (CheckConnection(id, out var group))
+            {
                 return group.SkipSong(index);
             }
-            else
-            {
-                Console.WriteLine("eeror");
-                throw new Exception("I must be in voice channel to perform this task");
-            }
+            return null;
         }
 
         public List<ISong> GetSongList(ulong id)
         {
-            if (ConnectedChannels.TryGetValue(id, out var group))
+            if (CheckConnection(id, out var group))
             {
                 return group.QueuedSongs;
             }
-            else
-            {
-                throw new Exception("I must be in voice channel to perform this task");
-            }
+            return null;
         }
 
         public ISong GetCurrentSong(ulong id)
         {
-            if (ConnectedChannels.TryGetValue(id, out var group))
+            if (CheckConnection(id, out var group))
             {
                 return group.Current;
+            }
+            return null;
+        }
+
+        private bool CheckConnection(ulong id, out AudioGroup group)
+        {
+            if (ConnectedChannels.TryGetValue(id, out group))
+            {
+                return true;
             }
             else
             {

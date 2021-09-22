@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using Ewk.SoundCloud.ApiLibrary.Entities;
 
 namespace DiscordBotRecognition.Song
 {
+    /*
     public class SoundCloudSong : ISong
     {
         public string Name => _track.label_name;
@@ -28,5 +28,5 @@ namespace DiscordBotRecognition.Song
         {
             return _track.uri;// Uri.AbsoluteUri;
         }
-    }
+    }*/
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -11,15 +12,41 @@ namespace DiscordBotRecognition.AudioPlayer.AudioClient
 
         private bool _disposed;
 
+        public event Action<ulong, Stream> StreamConnected;
+
+        public event Action Disconnected;
+
         public DiscordAudioClient(Discord.Audio.IAudioClient client)
         {
             _client = client;
             _audioOutStream = _client.CreatePCMStream(Discord.Audio.AudioApplication.Music);
+            _client.StreamCreated += OnStreamCreated;
+            _client.Disconnected += OnDisconnected;
+        }
+
+        public IReadOnlyDictionary<ulong, Stream> GetStreams()
+        {
+            return _client.GetStreams() as IReadOnlyDictionary<ulong, Stream>;
         }
 
         public Stream GetPCMStream()
         {
             return _audioOutStream;
+        }
+
+        private async Task OnDisconnected(Exception ex)
+        {
+            Disconnected?.Invoke();
+        }
+
+        private async Task OnStreamCreated(ulong id, Stream stream)
+        {
+            StreamConnected?.Invoke(id, stream);
+        }
+
+        private async Task OnStreamDisconnected()
+        {
+
         }
 
         public async ValueTask DisposeAsync()
@@ -36,6 +63,7 @@ namespace DiscordBotRecognition.AudioPlayer.AudioClient
                 {
 
                 }
+                Disconnected?.Invoke();
                 await _audioOutStream.DisposeAsync();
                 await _client.StopAsync();
                 _disposed = true;

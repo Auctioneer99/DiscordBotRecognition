@@ -1,6 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
 using DiscordBotRecognition.AudioPlayer;
+using DiscordBotRecognition.AudioPlayer.AudioClient;
+using DiscordBotRecognition.Converter;
+using DiscordBotRecognition.MusicSearch;
 using DiscordBotRecognition.Song;
 using System;
 using System.Text;
@@ -11,16 +14,33 @@ namespace DiscordBotRecognition.Modules.Audio
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
         private readonly AudioService _service;
+        private readonly ISongStreamConverter _converter;
+        private readonly IMusicSearcher _searcher;
 
-        public AudioModule(AudioService service)
+        public AudioModule(AudioService service, ISongStreamConverter converter, IMusicSearcher searcher)
         {
             _service = service;
+            _converter = converter;
+            _searcher = searcher;
         }
 
-        [Command("join", RunMode = RunMode.Async)]
+        [Command("join")]
         public async Task JoinCmd()
         {
-            await _service.JoinAudio(Context.Guild.Id, (Context.User as IVoiceState).VoiceChannel);
+            if (_service.IsConnected(Context.Guild.Id) == false)
+            {
+                var audioClient = await (Context.User as IVoiceState).VoiceChannel.ConnectAsync();
+                IAudioClient discordClient = new DiscordAudioClient(audioClient);
+                if (await _service.TryJoinAudio(Context.Guild.Id, discordClient, _converter))
+                {
+
+                }
+                else
+                {
+                    await discordClient.DisposeAsync();
+                    await ReplyAsync("```\nCan't connect to server\n```");
+                }
+            }
         }
 
         [Command("leave")]
@@ -31,35 +51,73 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("play", RunMode = RunMode.Async)]
-        public async Task AddSongCmd([Remainder] string query)
+        public async Task AddSong([Remainder] string query = "")
         {
-            await JoinCmd();
-            ISong song = await _service.AddSong(Context.Guild.Id, query);
-            await ReplyAsync($"```\nSong added! {song.Name}, {song.Duration}\n```");
+            if (query == "")
+            {
+                await Resume();
+            }
+            else
+            {
+                await JoinCmd();
+                ISong song = await _searcher.SearchSong(query);
+                if (song == null)
+                {
+                    await ReplyAsync($"```\nSong not found!\n```");
+                }
+                else
+                {
+                    await ReplyAsync($"```\nSong added! {song.Name}, {song.Duration}\n```");
+                    await _service.AddSong(Context.Guild.Id, song);
+                }
+            }
+        }
+
+        [Command("pause")]
+        public async Task Pause()
+        {
+            _service.PauseSong(Context.Guild.Id);
+            await ReplyAsync("```\nSong paused!\n```");
         }
 
         [Command("skip")]
         public async Task Skip(int songId = 1)
         {
-            var song = await _service.SkipSong(Context.Guild.Id, songId);
+            var song = _service.SkipSong(Context.Guild.Id, songId - 1);
             await ReplyAsync($"```\nSong skiped! {song.Name}\n```");
+        }
+
+        [Command("resume", RunMode = RunMode.Async)]
+        public async Task Resume()
+        {
+            if (_service.IsPaused(Context.Guild.Id))
+            {
+                await ReplyAsync("```\nResuming!\n```");
+                await _service.Play(Context.Guild.Id, true);
+            }
         }
 
         [Command("current")]
         public async Task GetCurrentSong()
         {
+            Console.WriteLine(0);
             ISong song = _service.GetCurrentSong(Context.Guild.Id);
-            string output = "";
+            Console.WriteLine(1);
+            string output;
+            Console.WriteLine(2);
             if (song != null)
             {
-                DateTime now = DateTime.Now;
-                output = $"```\nCurrent song: {song}, {Math.Round((now - song.BeginPlay).TotalSeconds / song.Duration.TotalSeconds * 100, 2)} %\n```";
+                Console.WriteLine(3);
+                output = $"```\nCurrent song: {song}\n```";
             }
             else
             {
+                Console.WriteLine(4);
                 output = $"```\nNo song is playing\n```";
             }
+            Console.WriteLine(5);
             await ReplyAsync(output);
+            Console.WriteLine(6);
         }
 
         [Command("queue")]

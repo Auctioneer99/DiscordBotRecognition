@@ -36,5 +36,20 @@ namespace DiscordBotRecognition.Converter
                 await streamOut.FlushAsync();
             }
         }
+
+        public Task ConvertToPCM(Stream streamOut, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetSong(ISong song)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

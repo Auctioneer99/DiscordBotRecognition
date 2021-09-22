@@ -9,18 +9,30 @@ namespace DiscordBotRecognition.Converter
 {
     public class NAudioConverter : ISongStreamConverter
     {
-        public async Task ConvertToPCM(ISong song, Stream streamOut, CancellationToken token)
+        private MediaFoundationReader _reader;
+        private WaveStream _pcmStream;
+        private ISong _song;
+
+        public async Task SetSong(ISong song)
+        {
+            _song = song;
+            var streamUrl = await song.GetStreamUrl();
+            _reader = new MediaFoundationReader(streamUrl);
+            _pcmStream = WaveFormatConversionStream.CreatePcmStream(_reader);
+        }
+
+        public void Reset()
+        {
+            _pcmStream?.Close();
+            _reader?.Close();
+            _song = null;
+        }
+
+        public async Task ConvertToPCM(Stream streamOut, CancellationToken token)
         {
             try
             {
-                var streamUrl = await song.GetStreamUrl();
-                using (MediaFoundationReader reader = new MediaFoundationReader(streamUrl))
-                {
-                    using (WaveStream pcmStream = WaveFormatConversionStream.CreatePcmStream(reader))
-                    {
-                        await pcmStream.CopyToAsync(streamOut, token);
-                    }
-                }
+                await _pcmStream.CopyToAsync(streamOut, token);
             }
             catch(Exception ex)
             {

@@ -15,7 +15,6 @@ namespace DiscordBotRecognition.Song
 
         public string Name { get; private set; }
         public TimeSpan Duration { get; private set; }
-        public DateTime BeginPlay { get; set; }
 
         private string _url;
         private YoutubeClient _client;
