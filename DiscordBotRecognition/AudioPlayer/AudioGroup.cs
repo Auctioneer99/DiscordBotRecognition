@@ -13,7 +13,7 @@ namespace DiscordBotRecognition.AudioPlayer
     {
         public IAudioClient Me { get; private set; }
         public List<ISong> QueuedSongs { get; private set; }
-        public ISong Current { get; private set; }
+        public ISong Current { get; private set; } = null;
         public bool Paused => _converter.Paused;
 
         private PausableConverter _converter;
@@ -95,6 +95,7 @@ namespace DiscordBotRecognition.AudioPlayer
                     if (_converter.Paused)
                     {
                         QueuedSongs.RemoveAt(id);
+                        Current = null;
                     }
                     _skipTokenSource.Cancel();
                     _converter.Reset();

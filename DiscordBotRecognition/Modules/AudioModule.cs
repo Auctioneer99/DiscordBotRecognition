@@ -24,7 +24,7 @@ namespace DiscordBotRecognition.Modules.Audio
             _searcher = searcher;
         }
 
-        [Command("join")]
+        [Command("join", RunMode = RunMode.Async)]
         public async Task JoinCmd()
         {
             if (_service.IsConnected(Context.Guild.Id) == false)
@@ -33,7 +33,7 @@ namespace DiscordBotRecognition.Modules.Audio
                 IAudioClient discordClient = new DiscordAudioClient(audioClient);
                 if (await _service.TryJoinAudio(Context.Guild.Id, discordClient, _converter))
                 {
-
+                    await ReplyAsync("```\nConnected\n```");
                 }
                 else
                 {
@@ -100,24 +100,17 @@ namespace DiscordBotRecognition.Modules.Audio
         [Command("current")]
         public async Task GetCurrentSong()
         {
-            Console.WriteLine(0);
             ISong song = _service.GetCurrentSong(Context.Guild.Id);
-            Console.WriteLine(1);
             string output;
-            Console.WriteLine(2);
             if (song != null)
             {
-                Console.WriteLine(3);
                 output = $"```\nCurrent song: {song}\n```";
             }
             else
             {
-                Console.WriteLine(4);
                 output = $"```\nNo song is playing\n```";
             }
-            Console.WriteLine(5);
             await ReplyAsync(output);
-            Console.WriteLine(6);
         }
 
         [Command("queue")]

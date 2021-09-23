@@ -34,7 +34,7 @@ namespace DiscordBotRecognition.AudioPlayer
 
         public async Task LeaveAudio(ulong id)
         {
-            if (CheckConnection(id, out var group))
+            if (ConnectedChannels.TryRemove(id, out var group))
             {
                 await group.DisposeAsync();
             }
