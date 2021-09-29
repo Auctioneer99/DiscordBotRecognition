@@ -25,6 +25,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("join", RunMode = RunMode.Async)]
+        [Summary("Connecting bot to active voice channel")]
         public async Task JoinCmd()
         {
             if (_service.IsConnected(Context.Guild.Id) == false)
@@ -44,6 +45,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("leave")]
+        [Summary("Leaving active voice channel in this channel")]
         public async Task LeaveCmd()
         {
             await _service.LeaveAudio(Context.Guild.Id);
@@ -51,6 +53,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("play", RunMode = RunMode.Async)]
+        [Summary("Adding song to queue or resuming/playing")]
         public async Task AddSong([Remainder] string query = "")
         {
             if (query == "")
@@ -74,6 +77,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("pause")]
+        [Summary("Pausing current voice output")]
         public async Task Pause()
         {
             _service.PauseSong(Context.Guild.Id);
@@ -81,6 +85,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("skip")]
+        [Summary("Skipping a certain or first song")]
         public async Task Skip(int songId = 1)
         {
             var song = _service.SkipSong(Context.Guild.Id, songId - 1);
@@ -88,6 +93,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("resume", RunMode = RunMode.Async)]
+        [Summary("Resuming voice output")]
         public async Task Resume()
         {
             if (_service.IsPaused(Context.Guild.Id))
@@ -98,6 +104,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("current")]
+        [Summary("Show information about playing song")]
         public async Task GetCurrentSong()
         {
             ISong song = _service.GetCurrentSong(Context.Guild.Id);
@@ -114,6 +121,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("queue")]
+        [Summary("Shows song queue")]
         public async Task GetListCmd()
         {
             var songs = _service.GetSongList(Context.Guild.Id);
@@ -133,6 +141,13 @@ namespace DiscordBotRecognition.Modules.Audio
                 sb.AppendLine("```");
                 await ReplyAsync(sb.ToString());
             }
+        }
+
+        [Command("stop")]
+        [Summary("Clears queue")]
+        public async Task Stop()
+        {
+
         }
     }
 }

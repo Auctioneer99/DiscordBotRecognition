@@ -13,6 +13,8 @@ namespace DiscordBotRecognition.Converter
         private WaveStream _pcmStream;
         private ISong _song;
 
+        public ConvertSettings Settings => throw new NotImplementedException();
+
         public async Task SetSong(ISong song)
         {
             _song = song;

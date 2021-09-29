@@ -10,6 +10,8 @@ namespace DiscordBotRecognition.Converter
     {
         public bool Paused { get; private set; }
 
+        public ConvertSettings Settings => _converter.Settings;
+
         private ISongStreamConverter _converter;
         private CancellationTokenSource _pauseTokenSource;
         private CancellationTokenSource _linkedTokenSource;

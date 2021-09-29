@@ -124,7 +124,7 @@ namespace DiscordBotRecognition
                 .AddSingleton(commands)
                 .AddSingleton(audio)
                 .AddSingleton(searcher)
-                .AddTransient<ISongStreamConverter>((service) => new NAudioConverter())
+                .AddTransient<ISongStreamConverter>((service) => new FFmpegConverter())//NAudioConverter())
                 .BuildServiceProvider();
 
             CommandHandler handler = new CommandHandler(client, commands, provider);

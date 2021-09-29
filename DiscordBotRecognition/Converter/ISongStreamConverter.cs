@@ -7,6 +7,8 @@ namespace DiscordBotRecognition.Converter
 {
     public interface ISongStreamConverter
     {
+        public ConvertSettings Settings { get; }
+
         Task SetSong(ISong song);
 
         Task ConvertToPCM(Stream streamOut, CancellationToken token);

@@ -1,7 +1,6 @@
 ﻿using DiscordBotRecognition.Song;
-using FFMpegCore;
-using FFMpegCore.Pipes;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,44 +11,79 @@ namespace DiscordBotRecognition.Converter
     {
         public const string FORMAT = "s16le";
 
-        public async Task ConvertToPCM(ISong song, Stream streamOut, CancellationToken token)
+        private ISong _song;
+        private SongStream _stream;
+        private Process _ffmpeg;
+        private CancellationTokenSource _songEndSource;
+        private CancellationTokenSource _linkedTokenSource;
+
+        public ConvertSettings Settings { get; private set; }
+
+        public FFmpegConverter()
         {
-            var streamIn = await song.GetStream();
-            var source = new StreamPipeSource(streamIn.Stream);
-            var sink = new StreamPipeSink(streamOut);
+            Settings = new ConvertSettings();
+        }
+
+        public async Task ConvertToPCM(Stream streamOut, CancellationToken token)
+        {
+            var pipe1 = _ffmpeg.StandardOutput.BaseStream;
+
+            _songEndSource = new CancellationTokenSource();
+            _linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_songEndSource.Token, token);
+
             try
             {
-                await FFMpegArguments
-                    .FromPipeInput(source)
-                    .OutputToPipe(sink, options => options
-                        .ForceFormat(FORMAT)
-                        )
-                    .ProcessAsynchronously();
+                await pipe1.CopyToAsync(streamOut, _linkedTokenSource.Token);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error on converting");
                 Console.WriteLine(ex.Message);
             }
             finally
             {
                 await streamOut.FlushAsync();
             }
-        }
-
-        public Task ConvertToPCM(Stream streamOut, CancellationToken token)
-        {
-            throw new NotImplementedException();
+            Console.WriteLine("Streaming has ended");
         }
 
         public void Reset()
         {
-            throw new NotImplementedException();
+            _stream.Stream.Close();
+            _song = null;
+            try
+            {
+                _ffmpeg?.Kill();
+            }
+            catch { }
+            _ffmpeg = null;
         }
 
-        public Task SetSong(ISong song)
+        public async Task SetSong(ISong song)
         {
-            throw new NotImplementedException();
+            _song = song;
+            _stream = await song.GetStream();
+            _ffmpeg = CreateProcess();
+            _stream.Stream.CopyToAsync(_ffmpeg.StandardInput.BaseStream)
+                .ContinueWith((_, __) =>
+                {
+                    _songEndSource.Cancel();
+                }, null);
+        }
+
+        private Process CreateProcess()
+        {
+            var ffmpeg = Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-re -i pipe:0 -f s16le -ac 2 -af \"firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar 48000 pipe:1",
+                //Arguments = $"-ss {SSText} -re -i pipe:0 -f s16le -ac 2 -af \"{Filter.Tag}\" -ar 48000 pipe:1",
+                UseShellExecute = false,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            });
+            ffmpeg.BeginErrorReadLine();
+            return ffmpeg;
         }
     }
 }

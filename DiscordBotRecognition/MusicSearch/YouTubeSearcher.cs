@@ -27,7 +27,31 @@ namespace DiscordBotRecognition.MusicSearch
             _client = new YoutubeClient();
         }
 
-        public async Task<ISong> SearchSong(string query)
+        public async Task<ISong> SearchSong(string input)
+        {
+            ISong song;
+            if (input.StartsWith("http://") || input.StartsWith("https://"))
+            {
+                song = await GetSongByLink(input);
+            }
+            else
+            {
+                song = await SearchSongByQuery(input);
+            }
+            return song;
+        }
+
+        private async Task<ISong> GetSongByLink(string link)
+        {
+            var split = link.Split('=');
+            var id = split[split.Length - 1];
+
+            YouTubeSong song = new YouTubeSong(id, _client);
+            await song.Initialize();
+            return song;
+        }
+
+        private async Task<ISong> SearchSongByQuery(string query)
         {
             var search = _service.Search.List("snippet");
             search.Q = query;
