@@ -1,7 +1,4 @@
-﻿using FFMpegCore;
-using FFMpegCore.Pipes;
-using System;
-using System.IO;
+﻿using System;
 using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Videos;
@@ -30,19 +27,6 @@ namespace DiscordBotRecognition.Song
             Video video = await _client.Videos.GetAsync(YOUTUBE_PREFIX + _url);
             Name = video.Title;
             Duration = video.Duration ?? TimeSpan.Zero;
-        }
-
-        public async Task<SongStream> GetStream()
-        {
-            var streamManifest = await _client.Videos.Streams.GetManifestAsync(YOUTUBE_PREFIX + _url);
-            var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-            var stream = await _client.Videos.Streams.GetAsync(streamInfo);
-            SongStream containeer = new SongStream(
-                streamInfo.Container.Name, 
-                (int)streamInfo.Bitrate.KiloBitsPerSecond, 
-                stream);
-
-            return containeer;
         }
 
         public async Task<string> GetStreamUrl()

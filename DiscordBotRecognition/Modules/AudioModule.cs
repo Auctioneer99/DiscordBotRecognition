@@ -147,7 +147,27 @@ namespace DiscordBotRecognition.Modules.Audio
         [Summary("Clears queue")]
         public async Task Stop()
         {
+            _service.Stop(Context.Guild.Id);
+        }
 
+        [Command("bass")]
+        [Summary("Setting bass option")]
+        public async Task SetBass(int volume)
+        {
+            _service.SetBass(volume, Context.Guild.Id);
+        }
+
+        [Command("info")]
+        [Summary("Get info about song streaming")]
+        public async Task GetInfo()
+        {
+            var info = _service.GetConvertingInfo(Context.Guild.Id);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("```");
+            sb.AppendLine($"Bass = {info.Bass}");
+            sb.AppendLine($"Treble = {info.Treble}");
+            sb.AppendLine("```");
+            await ReplyAsync(sb.ToString());
         }
     }
 }

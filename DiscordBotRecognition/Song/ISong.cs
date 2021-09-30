@@ -7,9 +7,6 @@ namespace DiscordBotRecognition.Song
     {
         string Name { get; }
         TimeSpan Duration { get; }
-
-        Task<SongStream> GetStream();
-
         Task<string> GetStreamUrl();
     }
 }

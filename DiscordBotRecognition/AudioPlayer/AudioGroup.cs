@@ -14,9 +14,8 @@ namespace DiscordBotRecognition.AudioPlayer
         public IAudioClient Me { get; private set; }
         public List<ISong> QueuedSongs { get; private set; }
         public ISong Current { get; private set; } = null;
-        public bool Paused => _converter.Paused;
+        public PausableConverter Converter { get; private set; }
 
-        private PausableConverter _converter;
         private AudioGroupSettings _settings;
         private bool _disposed = false;
         private bool _isPlaying = false;
@@ -25,13 +24,8 @@ namespace DiscordBotRecognition.AudioPlayer
         public AudioGroup(IAudioClient me, ISongStreamConverter converter, AudioGroupSettings settings)
         {
             Me = me;
-            _converter = new PausableConverter(converter);
+            Converter = new PausableConverter(converter);
             _settings = settings;
-            Initialize();
-        }
-
-        private void Initialize()
-        {
             QueuedSongs = new List<ISong>();
             _skipTokenSource = new CancellationTokenSource();
         }
@@ -60,27 +54,27 @@ namespace DiscordBotRecognition.AudioPlayer
                 _skipTokenSource = new CancellationTokenSource();
                 var streamOut = Me.GetPCMStream();
 
-                if (_converter.Paused)
+                if (Converter.Paused)
                 {
                     if (isResuming)
                     {
-                        await _converter.Resume(streamOut, _skipTokenSource.Token);
+                        await Converter.Resume(streamOut, _skipTokenSource.Token);
                     }
                 }
                 else
                 {
                     Current = QueuedSongs.First();
-                    await _converter.SetSong(Current);
-                    await _converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
+                    await Converter.SetSong(Current);
+                    await Converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
                 }
 
-                if (_converter.Paused)
+                if (Converter.Paused)
                 {
                     break;
                 }
                 QueuedSongs.RemoveAt(0);
                 Current = null;
-                _converter.Reset();
+                Converter.Reset();
             }
             _isPlaying = false;
         }
@@ -92,13 +86,13 @@ namespace DiscordBotRecognition.AudioPlayer
                 ISong song = QueuedSongs[id];
                 if (id == 0)
                 {
-                    if (_converter.Paused)
+                    if (Converter.Paused)
                     {
                         QueuedSongs.RemoveAt(id);
                         Current = null;
                     }
                     _skipTokenSource.Cancel();
-                    _converter.Reset();
+                    Converter.Reset();
                 }
                 else
                 {
@@ -112,12 +106,13 @@ namespace DiscordBotRecognition.AudioPlayer
             }
         }
 
-        public void PauseSong()
+        public void Stop()
         {
-            if (Current != null)
-            {
-                _converter.Pause();
-            }
+            Converter.Pause();
+            QueuedSongs.Clear();
+            Current = null;
+            _skipTokenSource.Cancel();
+            Converter.Reset();
         }
 
         public async ValueTask DisposeAsync()
@@ -135,7 +130,7 @@ namespace DiscordBotRecognition.AudioPlayer
 
                 }
                 await Me.DisposeAsync();
-                _converter.Reset();
+                Converter.Reset();
                 _disposed = true;
             }
         }

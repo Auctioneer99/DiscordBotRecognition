@@ -1,4 +1,5 @@
-﻿using DiscordBotRecognition.Song;
+﻿using DiscordBotRecognition.Converter.Settings;
+using DiscordBotRecognition.Song;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -12,10 +13,7 @@ namespace DiscordBotRecognition.Converter
         public const string FORMAT = "s16le";
 
         private ISong _song;
-        private SongStream _stream;
         private Process _ffmpeg;
-        private CancellationTokenSource _songEndSource;
-        private CancellationTokenSource _linkedTokenSource;
 
         public ConvertSettings Settings { get; private set; }
 
@@ -26,14 +24,9 @@ namespace DiscordBotRecognition.Converter
 
         public async Task ConvertToPCM(Stream streamOut, CancellationToken token)
         {
-            var pipe1 = _ffmpeg.StandardOutput.BaseStream;
-
-            _songEndSource = new CancellationTokenSource();
-            _linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_songEndSource.Token, token);
-
             try
             {
-                await pipe1.CopyToAsync(streamOut, _linkedTokenSource.Token);
+                await _ffmpeg.StandardOutput.BaseStream.CopyToAsync(streamOut, token);
             }
             catch (Exception ex)
             {
@@ -48,7 +41,6 @@ namespace DiscordBotRecognition.Converter
 
         public void Reset()
         {
-            _stream.Stream.Close();
             _song = null;
             try
             {
@@ -61,28 +53,19 @@ namespace DiscordBotRecognition.Converter
         public async Task SetSong(ISong song)
         {
             _song = song;
-            _stream = await song.GetStream();
-            _ffmpeg = CreateProcess();
-            _stream.Stream.CopyToAsync(_ffmpeg.StandardInput.BaseStream)
-                .ContinueWith((_, __) =>
-                {
-                    _songEndSource.Cancel();
-                }, null);
+            var url = await _song.GetStreamUrl();
+            _ffmpeg = CreateProcess(url);
         }
 
-        private Process CreateProcess()
+        private Process CreateProcess(string inputUrl)
         {
             var ffmpeg = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-re -i pipe:0 -f s16le -ac 2 -af \"firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar 48000 pipe:1",
-                //Arguments = $"-ss {SSText} -re -i pipe:0 -f s16le -ac 2 -af \"{Filter.Tag}\" -ar 48000 pipe:1",
+                Arguments = $"-hide_banner -loglevel warning -copyts -err_detect ignore_err -i {inputUrl} -f s16le -ac 2 -af \"firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar 48000 pipe:1",
                 UseShellExecute = false,
-                RedirectStandardInput = true,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
             });
-            ffmpeg.BeginErrorReadLine();
             return ffmpeg;
         }
     }

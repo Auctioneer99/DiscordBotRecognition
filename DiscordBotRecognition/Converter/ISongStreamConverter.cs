@@ -1,4 +1,5 @@
-﻿using DiscordBotRecognition.Song;
+﻿using DiscordBotRecognition.Converter.Settings;
+using DiscordBotRecognition.Song;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;

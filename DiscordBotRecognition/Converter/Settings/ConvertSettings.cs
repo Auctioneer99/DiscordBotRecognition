@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiscordBotRecognition.Converter
+namespace DiscordBotRecognition.Converter.Settings
 {
     public class ConvertSettings
     {
@@ -31,5 +31,7 @@ namespace DiscordBotRecognition.Converter
             }
         }
         private int _treble;
+
+        public Speed Speed { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
 using DiscordBotRecognition.Converter;
+using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.Song;
 
 namespace DiscordBotRecognition.AudioPlayer
@@ -44,7 +45,7 @@ namespace DiscordBotRecognition.AudioPlayer
         {
             if (CheckConnection(id, out var group))
             {
-                return group.Paused;
+                return group.Converter.Paused;
             }
             return false;
         }
@@ -66,19 +67,19 @@ namespace DiscordBotRecognition.AudioPlayer
             }
         }
 
-        public async Task Resume(ulong id)
-        {
-            if (CheckConnection(id, out var group))
-            {
-                await group.Play(true);
-            }
-        }
-
         public void PauseSong(ulong id)
         {
             if (CheckConnection(id, out var group))
             {
-                group.PauseSong();
+                group.Converter.Pause();
+            }
+        }
+
+        public void SetSpeed(ulong id)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                group.Converter.Pause();
             }
         }
 
@@ -107,6 +108,31 @@ namespace DiscordBotRecognition.AudioPlayer
                 return group.Current;
             }
             return null;
+        }
+
+        public void SetBass(int volume, ulong id)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                group.Converter.Settings.Bass = volume;
+            }
+        }
+
+        public ConvertSettings GetConvertingInfo(ulong id)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                return group.Converter.Settings;
+            }
+            return null;
+        }
+
+        public void Stop(ulong id)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                group.Stop();
+            }
         }
 
         private bool CheckConnection(ulong id, out AudioGroup group)
