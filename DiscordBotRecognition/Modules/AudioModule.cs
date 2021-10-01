@@ -91,13 +91,24 @@ namespace DiscordBotRecognition.Modules.Audio
         public async Task Skip()
         {
             var song = _service.SkipSong(Context.Guild.Id);
-            await ReplyAsync($"```\nSong skiped! {song.Name}\n```");
+            if (song == null)
+            {
+                await ReplyAsync($"```\nThere is nothing to skip```");
+            }
+            else
+            {
+                await ReplyAsync($"```\nSong skiped! {song.Name}\n```");
+            }
         }
 
         [Command("remove")]
         [Summary("Removing song in a queue")]
-        public async Task Remove(int songId = 1)
+        public async Task Remove(int songId)
         {
+            if (songId <= 0)
+            {
+                throw new ArgumentOutOfRangeException("Index must be greater than zero");
+            }
             var song = _service.RemoveSong(Context.Guild.Id, songId - 1);
             await ReplyAsync($"```\nSong removed! {song.Name}\n```");
         }
@@ -172,9 +183,9 @@ namespace DiscordBotRecognition.Modules.Audio
             }
         }
 
-        [Command("stop")]
+        [Command("clear")]
         [Summary("Clears queue")]
-        public async Task Stop()
+        public async Task Clear()
         {
             _service.Stop(Context.Guild.Id);
         }
