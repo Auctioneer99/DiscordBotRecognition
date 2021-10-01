@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
+using DiscordBotRecognition.AudioPlayer.Queue;
 using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.Song;
@@ -54,7 +56,7 @@ namespace DiscordBotRecognition.AudioPlayer
         {
             if (CheckConnection(id, out var group))
             {
-                group.AppendSong(song);
+                group.Queue.AddSong(song);
                 await group.Play(false);
             }
         }
@@ -83,11 +85,23 @@ namespace DiscordBotRecognition.AudioPlayer
             }
         }
 
-        public ISong SkipSong(ulong id, int index = 0)
+        public ISong SkipSong(ulong id)
         {
             if (CheckConnection(id, out var group))
             {
-                return group.SkipSong(index);
+                return group.SkipSong();
+            }
+            return null;
+        }
+
+        public ISong RemoveSong(ulong id, int index)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                if (group.Queue.TryRemove(index, out var song))
+                {
+                    return song;
+                }
             }
             return null;
         }
@@ -96,7 +110,7 @@ namespace DiscordBotRecognition.AudioPlayer
         {
             if (CheckConnection(id, out var group))
             {
-                return group.QueuedSongs;
+                return group.Queue.GetQueueList().ToList();
             }
             return null;
         }
@@ -105,9 +119,17 @@ namespace DiscordBotRecognition.AudioPlayer
         {
             if (CheckConnection(id, out var group))
             {
-                return group.Current;
+                return group.Queue.Current;
             }
             return null;
+        }
+
+        public void SetLooping(ulong id, EQueueType type)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                group.SetQueueType(type);
+            }
         }
 
         public void SetBass(int volume, ulong id)
@@ -118,11 +140,14 @@ namespace DiscordBotRecognition.AudioPlayer
             }
         }
 
-        public ConvertSettings GetConvertingInfo(ulong id)
+        public AudioGroupInfo GetInfo(ulong id)
         {
             if (CheckConnection(id, out var group))
             {
-                return group.Converter.Settings;
+                var info = new AudioGroupInfo();
+                info.ConvertInfo = group.Converter.Settings;
+                info.QueueType = group.Queue.Type;
+                return info;
             }
             return null;
         }

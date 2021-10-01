@@ -13,17 +13,17 @@
 
         public static Speed Nightcore()
         {
-            return new Speed(.8, 35280);
+            return new Speed(.8, 38400);
         }
 
         public static Speed Normal()
         {
-            return new Speed(1d, 44100);
+            return new Speed(1d, 48000);
         }
 
         public static Speed Slowed()
         {
-            return new Speed(1.25, 55125);
+            return new Speed(1.25, 60000);
         }
     }
 }

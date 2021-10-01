@@ -2,6 +2,7 @@
 using Discord.Commands;
 using DiscordBotRecognition.AudioPlayer;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
+using DiscordBotRecognition.AudioPlayer.Queue;
 using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.MusicSearch;
@@ -86,11 +87,19 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("skip")]
-        [Summary("Skipping a certain or first song")]
-        public async Task Skip(int songId = 1)
+        [Summary("Skipping current song")]
+        public async Task Skip()
         {
-            var song = _service.SkipSong(Context.Guild.Id, songId - 1);
+            var song = _service.SkipSong(Context.Guild.Id);
             await ReplyAsync($"```\nSong skiped! {song.Name}\n```");
+        }
+
+        [Command("remove")]
+        [Summary("Removing song in a queue")]
+        public async Task Remove(int songId = 1)
+        {
+            var song = _service.RemoveSong(Context.Guild.Id, songId - 1);
+            await ReplyAsync($"```\nSong removed! {song.Name}\n```");
         }
 
         [Command("resume", RunMode = RunMode.Async)]
@@ -144,6 +153,25 @@ namespace DiscordBotRecognition.Modules.Audio
             }
         }
 
+        [Command("loop")]
+        [Summary("Loops queue, toggle = on/off")]
+        public async Task SetLooping(string toggle)
+        {
+            switch(toggle)
+            {
+                case "on":
+                    await ReplyAsync("```\nRepeating queue!\n```");
+                    _service.SetLooping(Context.Guild.Id, EQueueType.Loop);
+                    return;
+                case "off":
+                    await ReplyAsync("```\nQueue sets to fifo!\n```");
+                    _service.SetLooping(Context.Guild.Id, EQueueType.FIFO);
+                    return;
+                default:
+                    return;
+            }
+        }
+
         [Command("stop")]
         [Summary("Clears queue")]
         public async Task Stop()
@@ -159,7 +187,7 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("speed")]
-        [Summary("Setting speed option, volume=slow/nightcore/normal")]
+        [Summary("Setting speed option, volume = slow/nightcore/normal")]
         public async Task SetSpeed(string volume)
         {
             Speed speed;
@@ -181,14 +209,17 @@ namespace DiscordBotRecognition.Modules.Audio
         }
 
         [Command("info")]
-        [Summary("Get info about song streaming")]
+        [Summary("Get info about audio group")]
         public async Task GetInfo()
         {
-            var info = _service.GetConvertingInfo(Context.Guild.Id);
+            var info = _service.GetInfo(Context.Guild.Id);
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("```");
-            sb.AppendLine($"Bass = {info.Bass}");
-            sb.AppendLine($"Treble = {info.Treble}");
+            sb.AppendLine($"QUEUE SETTINGS:");
+            sb.AppendLine($"QueueType = {info.QueueType.ToString()}");
+            sb.AppendLine($"CONVERT SETTINGS:");
+            sb.AppendLine($"Bass = {info.ConvertInfo.Bass}");
+            sb.AppendLine($"Treble = {info.ConvertInfo.Treble}");
             sb.AppendLine("```");
             await ReplyAsync(sb.ToString());
         }
