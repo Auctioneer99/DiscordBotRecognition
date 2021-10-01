@@ -135,6 +135,14 @@ namespace DiscordBotRecognition.AudioPlayer
             }
         }
 
+        public void SetSpeed(Speed speed, ulong id)
+        {
+            if (CheckConnection(id, out var group))
+            {
+                group.Converter.Settings.Speed = speed;
+            }
+        }
+
         private bool CheckConnection(ulong id, out AudioGroup group)
         {
             if (ConnectedChannels.TryGetValue(id, out group))

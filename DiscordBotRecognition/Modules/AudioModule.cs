@@ -3,6 +3,7 @@ using Discord.Commands;
 using DiscordBotRecognition.AudioPlayer;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
 using DiscordBotRecognition.Converter;
+using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.MusicSearch;
 using DiscordBotRecognition.Song;
 using System;
@@ -155,6 +156,28 @@ namespace DiscordBotRecognition.Modules.Audio
         public async Task SetBass(int volume)
         {
             _service.SetBass(volume, Context.Guild.Id);
+        }
+
+        [Command("speed")]
+        [Summary("Setting speed option, volume=slow/nightcore/normal")]
+        public async Task SetSpeed(string volume)
+        {
+            Speed speed;
+            switch (volume)
+            {
+                case "slow":
+                    speed = Speed.Slowed();
+                    break;
+                case "nightcore":
+                case "nc":
+                    speed = Speed.Nightcore();
+                    break;
+                case "normal":
+                default:
+                    speed = Speed.Normal();
+                    break;
+            }
+            _service.SetSpeed(speed, Context.Guild.Id);
         }
 
         [Command("info")]

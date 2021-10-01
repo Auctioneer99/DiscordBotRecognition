@@ -33,5 +33,10 @@ namespace DiscordBotRecognition.Converter.Settings
         private int _treble;
 
         public Speed Speed { get; set; }
+
+        public ConvertSettings()
+        {
+            Speed = Speed.Normal();
+        }
     }
 }

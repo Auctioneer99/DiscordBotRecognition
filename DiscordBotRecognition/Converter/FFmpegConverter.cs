@@ -62,7 +62,7 @@ namespace DiscordBotRecognition.Converter
             var ffmpeg = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-hide_banner -loglevel warning -copyts -err_detect ignore_err -i {inputUrl} -f s16le -ac 2 -af \"firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar 48000 pipe:1",
+                Arguments = $"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -loglevel warning -copyts -err_detect ignore_err -i {inputUrl} -f s16le -ac 2 -af \"atempo={Settings.Speed.Volume},firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar {Settings.Speed.Hz} -copy_unknown -sn -dn -ignore_unknown pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
             });
