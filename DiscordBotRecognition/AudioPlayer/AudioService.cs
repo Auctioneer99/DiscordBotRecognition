@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
 using DiscordBotRecognition.AudioPlayer.Queue;
+using DiscordBotRecognition.Cache;
 using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.Song;
@@ -14,6 +15,12 @@ namespace DiscordBotRecognition.AudioPlayer
     public class AudioService
     {
         private readonly ConcurrentDictionary<ulong, AudioGroup> ConnectedChannels = new ConcurrentDictionary<ulong, AudioGroup>();
+        private CacheStorage _cacheStorage;
+
+        public AudioService(CacheStorage CacheStorage)
+        {
+            _cacheStorage = CacheStorage;
+        }
 
         public bool IsConnected(ulong id)
         {
@@ -56,7 +63,16 @@ namespace DiscordBotRecognition.AudioPlayer
         {
             if (CheckConnection(id, out var group))
             {
-                group.Queue.AddSong(song);
+                CachedSong cached = new CachedSong(song, _cacheStorage);
+                if (await cached.IsLocal())
+                {
+                    await cached.CacheToLocalSystem();
+                }
+                else
+                {
+                    cached.CacheToLocalSystem();
+                }
+                group.Queue.AddSong(cached);
                 await group.Play(false);
             }
         }

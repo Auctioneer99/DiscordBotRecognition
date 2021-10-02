@@ -13,8 +13,6 @@ namespace DiscordBotRecognition.AudioPlayer
     public class AudioGroup : IAsyncDisposable
     {
         public IAudioClient Me { get; private set; }
-        //public List<ISong> QueuedSongs { get; private set; }
-        //public ISong Current { get; private set; } = null;
         public PausableConverter Converter { get; private set; }
         public ISongQueue Queue { get; private set; }
 
@@ -29,21 +27,8 @@ namespace DiscordBotRecognition.AudioPlayer
             Converter = new PausableConverter(converter);
             _settings = settings;
             Queue = new FIFOQueue(_settings.MaxQueueSize);
-            //QueuedSongs = new List<ISong>();
             _skipTokenSource = new CancellationTokenSource();
         }
-        /*
-        public void AppendSong(ISong song)
-        {
-            if (_settings.MaxQueueSize > QueuedSongs.Count)
-            {
-                QueuedSongs.Add(song);
-            }
-            else
-            {
-                throw new Exception($"Queue limit reached ({_settings.MaxQueueSize}), song not added");
-            }
-        }*/
 
         public async Task Play(bool isResuming = false)
         {
@@ -85,28 +70,6 @@ namespace DiscordBotRecognition.AudioPlayer
             _skipTokenSource.Cancel();
             Converter.Reset();
             return song;
-            /*
-            if (QueuedSongs.Count > id && id >= 0)
-            {
-                ISong song = QueuedSongs[id];
-                if (id == 0)
-                {
-                    if (Converter.Paused)
-                    {
-                        QueuedSongs.RemoveAt(id);
-                        Current = null;
-                    }
-                }
-                else
-                {
-                    QueuedSongs.RemoveAt(id);
-                }
-                return song;
-            }
-            else
-            {
-                throw new Exception("Song id must be within size of queue");
-            }*/
         }
 
         public void SetQueueType(EQueueType type)

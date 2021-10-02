@@ -10,6 +10,8 @@ using DiscordBotRecognition.Modules;
 using DiscordBotRecognition.AudioPlayer;
 using DiscordBotRecognition.Credentials;
 using DiscordBotRecognition.Converter;
+using DiscordBotRecognition.Cache;
+using DiscordBotRecognition.Song;
 
 namespace DiscordBotRecognition
 {
@@ -23,7 +25,8 @@ namespace DiscordBotRecognition
             DiscordSocketClient client = new DiscordSocketClient();
             CommandService commands = new CommandService();
             IMusicSearcher searcher = new YouTubeSearcher(Credential.GoogleAPIToken);
-            AudioService audio = new AudioService();
+            CacheStorage CacheStorage = new CacheStorage();
+            AudioService audio = new AudioService(CacheStorage);
 
             ServiceProvider provider = new ServiceCollection()
                 .AddSingleton(client)
