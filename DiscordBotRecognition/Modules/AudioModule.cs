@@ -6,7 +6,7 @@ using DiscordBotRecognition.AudioPlayer.Queue;
 using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.MusicSearch;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 using System;
 using System.Text;
 using System.Threading.Tasks;

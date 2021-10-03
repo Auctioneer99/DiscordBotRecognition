@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiscordBotRecognition.Songs;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -11,16 +12,15 @@ namespace DiscordBotRecognition.Cache
 
         public CacheStorage()
         {
-            RemoveOldFiles();
+            //RemoveOldFiles();
         }
 
-        public async Task<string> SaveWebFile(string url)
+        public async Task<string> SaveWebFile(ISong song)
         {
-            WebRequest request = WebRequest.Create(url);
+            WebRequest request = WebRequest.Create(song.StreamUrl);
             WebResponse response = await request.GetResponseAsync();
 
-            string name = GetUrlName(url);
-            string path = Path.Join(_localPath, name);
+            string path = Path.Join(_localPath, song.Id);
             try
             {
                 using (Stream stream = response.GetResponseStream())
@@ -38,16 +38,10 @@ namespace DiscordBotRecognition.Cache
             return path;
         }
 
-        public bool IsFileExist(string name, out string url)
+        public bool IsFileExist(ISong song, out string url)
         {
-            name = GetUrlName(name);
-            url = Path.Join(_localPath, name);
-            return Directory.Exists(url);
-        }
-
-        private string GetUrlName(string url)
-        {
-            return url.GetHashCode().ToString();
+            url = Path.Join(_localPath, song.Id);
+            return File.Exists(url);
         }
 
         private void RemoveOldFiles()

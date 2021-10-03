@@ -1,4 +1,4 @@
-﻿using DiscordBotRecognition.Song;
+﻿using DiscordBotRecognition.Songs;
 using System;
 using System.Collections.Generic;
 

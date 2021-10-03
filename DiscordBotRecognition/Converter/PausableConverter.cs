@@ -1,5 +1,5 @@
 ﻿using DiscordBotRecognition.Converter.Settings;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 using System;
 using System.IO;
 using System.Threading;
@@ -22,9 +22,9 @@ namespace DiscordBotRecognition.Converter
             _converter = converter;
         }
 
-        public async Task SetSong(ISong song)
+        public void SetSong(ISong song)
         {
-            await _converter.SetSong(song);
+            _converter.SetSong(song);
         }
 
         public void Reset()

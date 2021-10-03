@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordBotRecognition.Converter.Settings;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 using NAudio.Wave;
 
 namespace DiscordBotRecognition.Converter
@@ -16,11 +16,10 @@ namespace DiscordBotRecognition.Converter
 
         public ConvertSettings Settings => throw new NotImplementedException();
 
-        public async Task SetSong(ISong song)
+        public void SetSong(ISong song)
         {
             _song = song;
-            var streamUrl = await song.GetStreamUrl();
-            _reader = new MediaFoundationReader(streamUrl);
+            _reader = new MediaFoundationReader(song.StreamUrl);
             _pcmStream = WaveFormatConversionStream.CreatePcmStream(_reader);
         }
 

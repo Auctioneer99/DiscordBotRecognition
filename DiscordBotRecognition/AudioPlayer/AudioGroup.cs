@@ -1,7 +1,7 @@
 ﻿using DiscordBotRecognition.AudioPlayer.AudioClient;
 using DiscordBotRecognition.AudioPlayer.Queue;
 using DiscordBotRecognition.Converter;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +51,7 @@ namespace DiscordBotRecognition.AudioPlayer
                 }
                 else
                 {
-                    await Converter.SetSong(song);
+                    Converter.SetSong(song);
                     await Converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
                 }
 

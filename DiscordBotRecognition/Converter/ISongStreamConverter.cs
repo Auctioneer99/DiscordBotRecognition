@@ -1,5 +1,5 @@
 ﻿using DiscordBotRecognition.Converter.Settings;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +10,7 @@ namespace DiscordBotRecognition.Converter
     {
         public ConvertSettings Settings { get; }
 
-        Task SetSong(ISong song);
+        void SetSong(ISong song);
 
         Task ConvertToPCM(Stream streamOut, CancellationToken token);
 

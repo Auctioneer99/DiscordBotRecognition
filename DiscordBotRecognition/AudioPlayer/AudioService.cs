@@ -8,7 +8,7 @@ using DiscordBotRecognition.AudioPlayer.Queue;
 using DiscordBotRecognition.Cache;
 using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Converter.Settings;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 
 namespace DiscordBotRecognition.AudioPlayer
 {
@@ -64,7 +64,7 @@ namespace DiscordBotRecognition.AudioPlayer
             if (CheckConnection(id, out var group))
             {
                 CachedSong cached = new CachedSong(song, _cacheStorage);
-                if (await cached.IsLocal())
+                if (cached.IsLocal())
                 {
                     await cached.CacheToLocalSystem();
                 }

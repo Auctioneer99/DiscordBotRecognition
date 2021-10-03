@@ -11,7 +11,7 @@ using DiscordBotRecognition.AudioPlayer;
 using DiscordBotRecognition.Credentials;
 using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Cache;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 
 namespace DiscordBotRecognition
 {

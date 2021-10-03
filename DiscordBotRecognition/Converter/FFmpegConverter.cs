@@ -1,5 +1,5 @@
 ﻿using DiscordBotRecognition.Converter.Settings;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -50,11 +50,10 @@ namespace DiscordBotRecognition.Converter
             _ffmpeg = null;
         }
 
-        public async Task SetSong(ISong song)
+        public void SetSong(ISong song)
         {
             _song = song;
-            var url = await _song.GetStreamUrl();
-            _ffmpeg = CreateProcess(url);
+            _ffmpeg = CreateProcess(_song.StreamUrl);
         }
 
         private Process CreateProcess(string inputUrl)

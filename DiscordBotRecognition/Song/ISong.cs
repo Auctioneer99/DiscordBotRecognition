@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Threading.Tasks;
 
-namespace DiscordBotRecognition.Song
+namespace DiscordBotRecognition.Songs
 {
     public interface ISong
     {
-        string Name { get; }
-        TimeSpan Duration { get; }
-        Task<string> GetStreamUrl();
+        public string Id { get; }
+        public string Name { get; }
+        public TimeSpan Duration { get; }
+        public string StreamUrl { get; }
     }
 }

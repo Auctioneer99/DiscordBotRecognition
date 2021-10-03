@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using DiscordBotRecognition.Song;
+using DiscordBotRecognition.Songs;
 
 namespace DiscordBotRecognition.MusicSearch
 {

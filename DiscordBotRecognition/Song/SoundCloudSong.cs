@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 
-namespace DiscordBotRecognition.Song
+namespace DiscordBotRecognition.Songs
 {
     /*
     public class SoundCloudSong : ISong

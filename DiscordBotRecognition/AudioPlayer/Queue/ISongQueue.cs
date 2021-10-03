@@ -1,4 +1,4 @@
-﻿using DiscordBotRecognition.Song;
+﻿using DiscordBotRecognition.Songs;
 using System.Collections.Generic;
 
 namespace DiscordBotRecognition.AudioPlayer.Queue
