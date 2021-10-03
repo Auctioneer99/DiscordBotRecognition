@@ -8,11 +8,12 @@ namespace DiscordBotRecognition.Cache
 {
     public class CacheStorage
     {
+        private const int _cacheInDays = 7;
         private string _localPath = Path.Join(Directory.GetCurrentDirectory(), "temp");
 
         public CacheStorage()
         {
-            //RemoveOldFiles();
+            RemoveOldFiles();
         }
 
         public async Task<string> SaveWebFile(ISong song)
@@ -46,10 +47,15 @@ namespace DiscordBotRecognition.Cache
 
         private void RemoveOldFiles()
         {
+            DateTime threshold = DateTime.Now;
+            threshold = threshold.AddDays(-_cacheInDays);
             var files = Directory.GetFiles(_localPath);
             foreach (var file in files)
             {
-                File.Delete(file);
+                if (File.GetLastAccessTime(file) <= threshold)
+                {
+                    File.Delete(file);
+                }
             }
         }
     }
