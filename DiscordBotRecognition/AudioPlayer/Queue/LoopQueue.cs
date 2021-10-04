@@ -69,7 +69,6 @@ namespace DiscordBotRecognition.AudioPlayer.Queue
         {
             if (_maxSize > _internalQueue.Count)
             {
-                //chached strategy
                 _internalQueue.Add(song);
             }
             else
@@ -103,7 +102,12 @@ namespace DiscordBotRecognition.AudioPlayer.Queue
 
         public void Clear()
         {
+            foreach(var song in _internalQueue)
+            {
+                song.Dispose();
+            }
             _internalQueue = new List<ISong>(_maxSize);
+            Current?.Dispose();
             Current = null;
         }
 
@@ -119,6 +123,7 @@ namespace DiscordBotRecognition.AudioPlayer.Queue
                 }
                 song = _internalQueue[i];
                 _internalQueue.RemoveAt(i);
+                song.Dispose();
                 return true;
             }
             song = null;

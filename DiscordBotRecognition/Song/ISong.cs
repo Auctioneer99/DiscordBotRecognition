@@ -2,7 +2,7 @@
 
 namespace DiscordBotRecognition.Songs
 {
-    public interface ISong
+    public interface ISong : IDisposable
     {
         public string Id { get; }
         public string Name { get; }

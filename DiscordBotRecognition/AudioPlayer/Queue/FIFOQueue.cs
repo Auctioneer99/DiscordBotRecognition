@@ -36,6 +36,7 @@ namespace DiscordBotRecognition.AudioPlayer.Queue
 
         public bool TryGetNextSong(out ISong song)
         {
+            Current?.Dispose();
             if (_internalQueue.Count == 0)
             {
                 song = null;
@@ -80,7 +81,12 @@ namespace DiscordBotRecognition.AudioPlayer.Queue
 
         public void Clear()
         {
+            foreach(var song in _internalQueue)
+            {
+                song.Dispose();
+            }
             _internalQueue = new List<ISong>(_maxSize);
+            Current?.Dispose();
             Current = null;
         }
 
@@ -90,6 +96,7 @@ namespace DiscordBotRecognition.AudioPlayer.Queue
             {
                 song = _internalQueue[id];
                 _internalQueue.RemoveAt(id);
+                song.Dispose();
                 return true;
             }
             song = null;

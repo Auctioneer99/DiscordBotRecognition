@@ -12,7 +12,6 @@ namespace DiscordBotRecognition.Songs
 
         private string _url;
         private YoutubeClient _client;
-        private int _hashCode;
 
         public string Id { get; private set; }
 
@@ -21,6 +20,8 @@ namespace DiscordBotRecognition.Songs
         public TimeSpan Duration { get; private set; }
 
         public string StreamUrl { get; private set; }
+
+        private bool _disposed;
 
         public YouTubeSong(string url, YoutubeClient client)
         {
@@ -33,7 +34,6 @@ namespace DiscordBotRecognition.Songs
             Video video = await _client.Videos.GetAsync(YOUTUBE_PREFIX + _url);
             var temp = video.Url.Split('=');
             Id = temp[temp.Length - 1];
-            _hashCode = video.Url.GetHashCode();
             Name = video.Title;
             Duration = video.Duration ?? TimeSpan.Zero;
             var streamManifest = await _client.Videos.Streams.GetManifestAsync(YOUTUBE_PREFIX + _url);
@@ -45,9 +45,28 @@ namespace DiscordBotRecognition.Songs
             return $"{Name}, {Duration}";
         }
 
-        public override int GetHashCode()
+        public void Dispose()
         {
-            return _hashCode;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed == false)
+            {
+                if (disposing)
+                {
+
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~YouTubeSong()
+        {
+            Dispose(false);
         }
     }
 }

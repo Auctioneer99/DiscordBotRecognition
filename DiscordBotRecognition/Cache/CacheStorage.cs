@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiscordBotRecognition.Cache
@@ -24,10 +25,11 @@ namespace DiscordBotRecognition.Cache
             }
             else
             {
-                var cachedSong = new CachedSong(song);
+                var cacheToken = new CancellationTokenSource();
+                var cachedSong = new CachedSong(song, cacheToken);
                 Task.Run(async () =>
                 {
-                    var path = await SaveWebFile(song);
+                    var path = await SaveWebFile(song, cacheToken);
                     cachedSong.SetCachedPath(path);
 
                 });
@@ -55,7 +57,7 @@ namespace DiscordBotRecognition.Cache
             }
         }
 
-        private async Task<string> SaveWebFile(ISong song)
+        private async Task<string> SaveWebFile(ISong song, CancellationTokenSource cacheToken)
         {
             WebRequest request = WebRequest.Create(song.StreamUrl);
             WebResponse response = await request.GetResponseAsync();
@@ -67,13 +69,17 @@ namespace DiscordBotRecognition.Cache
                 {
                     using (var fileStream = File.Create(path))
                     {
-                        await stream.CopyToAsync(fileStream);
+                        await stream.CopyToAsync(fileStream, cacheToken.Token);
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Cancelling Cache Operation");
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
             }
             return path;
         }
