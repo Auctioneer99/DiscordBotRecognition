@@ -63,15 +63,7 @@ namespace DiscordBotRecognition.AudioPlayer
         {
             if (CheckConnection(id, out var group))
             {
-                CachedSong cached = new CachedSong(song, _cacheStorage);
-                if (cached.IsLocal())
-                {
-                    await cached.CacheToLocalSystem();
-                }
-                else
-                {
-                    cached.CacheToLocalSystem();
-                }
+                CachedSong cached = _cacheStorage.GetCachedFile(song);
                 group.Queue.AddSong(cached);
                 await group.Play(false);
             }

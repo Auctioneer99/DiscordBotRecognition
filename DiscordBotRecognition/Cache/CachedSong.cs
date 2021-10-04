@@ -1,6 +1,5 @@
 ﻿using DiscordBotRecognition.Songs;
 using System;
-using System.Threading.Tasks;
 
 namespace DiscordBotRecognition.Cache
 {
@@ -17,35 +16,22 @@ namespace DiscordBotRecognition.Cache
         private ISong _song;
         private bool _cached;
         private string _localPath;
-        private CacheStorage _cacheStorage;
 
-        public CachedSong(ISong song, CacheStorage cacheStorage)
+        public CachedSong(ISong song)
         {
-            _cacheStorage = cacheStorage;
             _song = song;
         }
 
-        public bool IsLocal()
+        public CachedSong(ISong song, string path)
         {
-            return _cacheStorage.IsFileExist(this, out var junk);
+            _song = song;
+            SetCachedPath(path);
         }
 
-        public async Task CacheToLocalSystem()
+        public void SetCachedPath(string path)
         {
-            if (_cacheStorage.IsFileExist(this, out var localPath))
-            {
-                _localPath = localPath;
-            }
-            else
-            {
-                _localPath = await _cacheStorage.SaveWebFile(this);
-            }
             _cached = true;
-        }
-
-        public override int GetHashCode()
-        {
-            return _song.GetHashCode();
+            _localPath = path;
         }
     }
 }
