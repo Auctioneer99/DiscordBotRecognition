@@ -24,7 +24,7 @@ namespace DiscordBotRecognition.Modules
 
         public async Task InitializeAsync()
         {
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            await _commands.AddModulesAsync(Assembly.GetExecutingAssembly(), _services);
             _commands.CommandExecuted += OnCommandExecutedAsync;
             _client.MessageReceived += HandleCommandAsync;
         }

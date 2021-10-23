@@ -36,7 +36,6 @@ namespace DiscordBotRecognition.Converter
             {
                 await streamOut.FlushAsync();
             }
-            Console.WriteLine("Streaming has ended");
         }
 
         public void Reset()
