@@ -47,6 +47,10 @@ namespace DiscordBotRecognition.Cache
         {
             DateTime threshold = DateTime.Now;
             threshold = threshold.AddDays(-CACHE_DAYS);
+            if (Directory.Exists(_localPath) == false)
+            {
+                Directory.CreateDirectory(_localPath);
+            }
             var files = Directory.GetFiles(_localPath);
             foreach (var file in files)
             {

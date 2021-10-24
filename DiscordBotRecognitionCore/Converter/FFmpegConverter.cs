@@ -68,6 +68,8 @@ namespace DiscordBotRecognition.Converter
 
         private Process CreateProcess(string inputUrl)
         {
+            Console.WriteLine("creating");
+            Console.WriteLine(Directory.GetCurrentDirectory());
             string webArgs = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5";
             bool shouldAddWebArgs = inputUrl.StartsWith("http");
             string additionalArgs = shouldAddWebArgs ? webArgs : "";
