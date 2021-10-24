@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using DiscordBotRecognition.Alive;
 using DiscordBotRecognition.AudioPlayer;
 using DiscordBotRecognition.AudioPlayer.AudioClient;
 using DiscordBotRecognition.AudioPlayer.Queue;
@@ -16,13 +17,11 @@ namespace DiscordBotRecognition.Modules.Audio
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
         private readonly AudioService _service;
-        private readonly ISongStreamConverter _converter;
         private readonly IMusicSearcher _searcher;
 
-        public AudioModule(AudioService service, ISongStreamConverter converter, IMusicSearcher searcher)
+        public AudioModule(AudioService service, IMusicSearcher searcher)
         {
             _service = service;
-            _converter = converter;
             _searcher = searcher;
         }
 
@@ -34,8 +33,12 @@ namespace DiscordBotRecognition.Modules.Audio
             {
                 var audioClient = await (Context.User as IVoiceState).VoiceChannel.ConnectAsync();
                 IAudioClient discordClient = new DiscordAudioClient(audioClient);
-                if (await _service.TryJoinAudio(Context.Guild.Id, discordClient, _converter))
+                AliveChecker checker = new AliveChecker();
+                FFmpegConverter converter = new FFmpegConverter(checker);
+                if (await _service.TryJoinAudio(Context.Guild.Id, discordClient, converter))
                 {
+                    checker.Start();
+                    checker.StateChanged += CheckerStateChanged;
                     await ReplyAsync("```\nConnected\n```");
                 }
                 else
@@ -43,6 +46,11 @@ namespace DiscordBotRecognition.Modules.Audio
                     await discordClient.DisposeAsync();
                     await ReplyAsync("```\nCan't connect to server\n```");
                 }
+            }
+
+            void CheckerStateChanged(EAliveState state)
+            {
+                LeaveCmd();
             }
         }
 

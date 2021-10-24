@@ -16,6 +16,7 @@ namespace DiscordBotRecognition.Converter
         private ISongStreamConverter _converter;
         private CancellationTokenSource _pauseTokenSource;
         private CancellationTokenSource _linkedTokenSource;
+        private bool _disposed;
 
         public PausableConverter(ISongStreamConverter converter)
         {
@@ -65,6 +66,30 @@ namespace DiscordBotRecognition.Converter
         {
             Paused = false;
             await ConvertToPCM(streamOut, skipToken);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed == false)
+            {
+                if (disposing)
+                {
+
+                }
+                _converter.Dispose();
+                _disposed = true;
+            }
+        }
+
+        ~PausableConverter()
+        {
+            Dispose(false);
         }
     }
 }

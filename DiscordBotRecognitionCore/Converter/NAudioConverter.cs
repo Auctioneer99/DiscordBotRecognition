@@ -46,5 +46,10 @@ namespace DiscordBotRecognition.Converter
                 await streamOut.FlushAsync();
             }
         }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

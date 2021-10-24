@@ -1,4 +1,5 @@
-﻿using DiscordBotRecognition.Converter.Settings;
+﻿using DiscordBotRecognition.Alive;
+using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.Songs;
 using System;
 using System.Diagnostics;
@@ -14,19 +15,28 @@ namespace DiscordBotRecognition.Converter
 
         private ISong _song;
         private Process _ffmpeg;
+        private AliveChecker _checker;
+        private bool _disposed;
 
         public ConvertSettings Settings { get; private set; }
 
-        public FFmpegConverter()
+        public FFmpegConverter(AliveChecker checker)
         {
             Settings = new ConvertSettings();
+            _checker = checker;
         }
 
         public async Task ConvertToPCM(Stream streamOut, CancellationToken token)
         {
             try
             {
-                await _ffmpeg.StandardOutput.BaseStream.CopyToAsync(streamOut, token);
+                int read;
+                var buffer = new byte[32 * 1024];
+                while ((read = await _ffmpeg.StandardOutput.BaseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    streamOut.Write(buffer, 0, read);
+                    _checker.Update();
+                }
             }
             catch (Exception ex)
             {
@@ -35,6 +45,7 @@ namespace DiscordBotRecognition.Converter
             finally
             {
                 await streamOut.FlushAsync();
+                _checker.Update();
             }
         }
 
@@ -68,6 +79,31 @@ namespace DiscordBotRecognition.Converter
                 RedirectStandardOutput = true,
             });
             return ffmpeg;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed == false)
+            {
+                if (disposing)
+                {
+
+                }
+                _ffmpeg?.Kill();
+                _checker.Dispose();
+                _disposed = true;
+            }
+        }
+
+        ~FFmpegConverter()
+        {
+            Dispose(false);
         }
     }
 }

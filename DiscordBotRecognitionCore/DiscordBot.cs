@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using DiscordBotRecognition.Alive;
 using DiscordBotRecognition.AudioPlayer;
 using DiscordBotRecognition.Cache;
 using DiscordBotRecognition.Converter;
@@ -46,7 +47,7 @@ namespace DiscordBotRecognition
                 .AddSingleton(commands)
                 .AddSingleton(audio)
                 .AddSingleton(searcher)
-                .AddTransient<ISongStreamConverter>((service) => new FFmpegConverter())
+                .AddTransient<ISongStreamConverter>((service) => new FFmpegConverter(new AliveChecker()))
                 .BuildServiceProvider();
 
             CommandHandler handler = new CommandHandler(client, commands, provider);

@@ -100,7 +100,7 @@ namespace DiscordBotRecognition.AudioPlayer
 
                 }
                 await Me.DisposeAsync();
-                Converter.Reset();
+                Converter.Dispose();
                 _disposed = true;
             }
         }
