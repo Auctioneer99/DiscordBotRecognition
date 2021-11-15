@@ -12,9 +12,12 @@ namespace DiscordBotRecognition.AudioPlayer
 {
     public class AudioGroup : IAsyncDisposable
     {
+        public ulong Id => Me.Id;
         public IAudioClient Me { get; private set; }
         public PausableConverter Converter { get; private set; }
         public ISongQueue Queue { get; private set; }
+
+        public bool IsPlaying => _isPlaying;
 
         private AudioGroupSettings _settings;
         private bool _disposed = false;
@@ -28,38 +31,37 @@ namespace DiscordBotRecognition.AudioPlayer
             _settings = settings;
             Queue = new FIFOQueue(_settings.MaxQueueSize);
             _skipTokenSource = new CancellationTokenSource();
+            Me.Disconnected += OnDisconnected;
         }
 
-        public async Task Play(bool isResuming = false)
+        private void OnDisconnected()
         {
+            DisposeAsync();
+        }
+
+        public async Task Play(bool _isResuming)
+        {
+            Console.WriteLine(_isPlaying);
             if (_isPlaying)
             {
                 return;
             }
             _isPlaying = true;
-            while(Queue.TryGetNextSong(out ISong song))
+            Console.WriteLine(Converter.Paused);
+            var streamOut = Me.GetPCMStream();
+            if (Converter.Paused)
             {
-                _skipTokenSource = new CancellationTokenSource();
-                var streamOut = Me.GetPCMStream();
-
-                if (Converter.Paused)
+                if (_isResuming)
                 {
-                    if (isResuming)
-                    {
-                        await Converter.Resume(streamOut, _skipTokenSource.Token);
-                    }
+                    await Converter.Resume(streamOut, _skipTokenSource.Token);
                 }
-                else
-                {
-                    Converter.SetSong(song);
-                    await Converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
-                }
-
-                if (Converter.Paused)
-                {
-                    break;
-                }
+            }
+            while (Converter.Paused == false && Queue.TryGetNextSong(out ISong song))
+            {
                 Converter.Reset();
+                _skipTokenSource = new CancellationTokenSource();
+                Converter.SetSong(song);
+                await Converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
             }
             _isPlaying = false;
         }

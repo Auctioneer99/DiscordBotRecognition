@@ -6,7 +6,7 @@
 Credentials/
 ffmpeg.exe
 libsodium.dll
-libopus.dll
+opus.dll
 
 # User-specific files
 *.rsuser

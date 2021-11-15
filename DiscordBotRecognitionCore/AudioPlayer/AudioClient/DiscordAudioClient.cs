@@ -1,32 +1,38 @@
-﻿using System;
+﻿using DiscordBotRecognitionCore.Recognition;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DiscordBotRecognition.AudioPlayer.AudioClient
 {
     public class DiscordAudioClient : IAudioClient
     {
+        public event Action Disconnected;
+        public event Action<RecognizableClient> StreamConnected;
+        public event Action<ulong> StreamDisconnected;
+
+        public ulong Id { get; }
+
         private Discord.Audio.IAudioClient _client;
         private Discord.Audio.AudioOutStream _audioOutStream;
 
         private bool _disposed;
 
-        public event Action<ulong, Stream> StreamConnected;
-
-        public event Action Disconnected;
-
-        public DiscordAudioClient(Discord.Audio.IAudioClient client)
+        public DiscordAudioClient(ulong id, Discord.Audio.IAudioClient client)
         {
+            Id = id;
             _client = client;
             _audioOutStream = _client.CreatePCMStream(Discord.Audio.AudioApplication.Music);
             _client.StreamCreated += OnStreamCreated;
+            _client.StreamDestroyed += OnStreamDisconnected;
             _client.Disconnected += OnDisconnected;
         }
 
-        public IReadOnlyDictionary<ulong, Stream> GetStreams()
+        public IEnumerable<RecognizableClient> GetListenerStreams()
         {
-            return _client.GetStreams() as IReadOnlyDictionary<ulong, Stream>;
+            return _client.GetStreams().Select(pair => new RecognizableClient(pair.Key, pair.Value));
         }
 
         public Stream GetPCMStream()
@@ -41,12 +47,12 @@ namespace DiscordBotRecognition.AudioPlayer.AudioClient
 
         private async Task OnStreamCreated(ulong id, Stream stream)
         {
-            StreamConnected?.Invoke(id, stream);
+            StreamConnected?.Invoke(new RecognizableClient(id, stream));
         }
 
-        private async Task OnStreamDisconnected()
+        private async Task OnStreamDisconnected(ulong id)
         {
-
+            StreamDisconnected?.Invoke(id);
         }
 
         public async ValueTask DisposeAsync()

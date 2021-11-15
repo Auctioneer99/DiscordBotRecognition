@@ -1,5 +1,4 @@
-﻿using DiscordBotRecognition.Alive;
-using DiscordBotRecognition.Converter.Settings;
+﻿using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.Songs;
 using System;
 using System.Diagnostics;
@@ -15,38 +14,35 @@ namespace DiscordBotRecognition.Converter
 
         private ISong _song;
         private Process _ffmpeg;
-        private AliveChecker _checker;
         private bool _disposed;
+        private string _executable;
 
         public ConvertSettings Settings { get; private set; }
 
-        public FFmpegConverter(AliveChecker checker)
+        public FFmpegConverter(string executionPath)
         {
             Settings = new ConvertSettings();
-            _checker = checker;
+            _executable = executionPath;
         }
 
         public async Task ConvertToPCM(Stream streamOut, CancellationToken token)
         {
             try
             {
-                int read;
-                var buffer = new byte[32 * 1024];
-                while ((read = await _ffmpeg.StandardOutput.BaseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                {
-                    streamOut.Write(buffer, 0, read);
-                    _checker.Update();
-                }
+                Console.WriteLine("Converting ffmpeg");
+                await _ffmpeg.StandardOutput.BaseStream.CopyToAsync(streamOut, token);
+                //int read;
+                //var buffer = new byte[32 * 1024];
+                //while ((read = await _ffmpeg.StandardOutput.BaseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                //{
+                //    streamOut.Write(buffer, 0, read);
+                //}
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            finally
-            {
-                await streamOut.FlushAsync();
-                _checker.Update();
-            }
+            await streamOut.FlushAsync();
         }
 
         public void Reset()
@@ -68,14 +64,13 @@ namespace DiscordBotRecognition.Converter
 
         private Process CreateProcess(string inputUrl)
         {
-            Console.WriteLine("creating");
-            Console.WriteLine(Directory.GetCurrentDirectory());
             string webArgs = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5";
             bool shouldAddWebArgs = inputUrl.StartsWith("http");
             string additionalArgs = shouldAddWebArgs ? webArgs : "";
+
             var ffmpeg = Process.Start(new ProcessStartInfo
             {
-                FileName = "ffmpeg",
+                FileName = _executable,
                 Arguments = $"{additionalArgs} -loglevel warning -copyts -err_detect ignore_err -i \"{inputUrl}\" -f s16le -ac 2 -af \"atempo={Settings.Speed.Volume},firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar {Settings.Speed.Hz} -copy_unknown -sn -dn -ignore_unknown pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -98,7 +93,6 @@ namespace DiscordBotRecognition.Converter
 
                 }
                 _ffmpeg?.Kill();
-                _checker.Dispose();
                 _disposed = true;
             }
         }

@@ -1,19 +1,23 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using DiscordBotRecognition.AudioPlayer;
+using DiscordBotRecognition.Recognition;
+using DiscordBotRecognitionCore.Connection;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordBotRecognition.Modules
+namespace DiscordBotRecognitionCore.Modules
 {
-    public class RecognitionModule : ModuleBase<SocketCommandContext>
+    public class RecognitionModule : AModuleBase
     {
         [Command("listen")]
         public async Task ToggleListen(bool listen)
         {
             if (listen)
             {
-
+                
             }
             else
             {

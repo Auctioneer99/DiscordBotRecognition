@@ -12,18 +12,12 @@
 
   <ItemGroup>
     <None Remove="ffmpeg.exe" />
-    <None Remove="libopus.dll" />
     <None Remove="libsodium.dll" />
+    <None Remove="opus.dll" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="ffmpeg.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="libsodium.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="libopus.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

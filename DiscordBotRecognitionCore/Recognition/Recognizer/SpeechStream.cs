@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 
 namespace DiscordBotRecognition.Recognition
@@ -21,7 +19,9 @@ namespace DiscordBotRecognition.Recognition
             _buffersize = bufferSize;
             _buffer = new List<byte>(_buffersize);
             for (int i = 0; i < _buffersize; i++)
+            {
                 _buffer.Add(new byte());
+            }
             _readposition = 0;
             _writeposition = 0;
         }
@@ -98,7 +98,6 @@ namespace DiscordBotRecognition.Recognition
                 }
             }
             _writeEvent.Set();
-
         }
 
         public override void Close()

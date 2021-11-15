@@ -1,84 +1,59 @@
-﻿using System;
+﻿using DiscordBotRecognition.AudioPlayer;
+using DiscordBotRecognitionCore.Connection;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 
-namespace DiscordBotRecognition.Alive
+namespace DiscordBotRecognitionCore.Alive
 {
-    public enum EAliveState
-    {
-        NotStarted,
-        Alive,
-        Dead
-    }
-
-    public class AliveChecker : IDisposable
+    public class AliveChecker
     {
         public const long IDLE_TIME_MILLISECONDS = 15 * 60 * 1000;
 
-        public event Action<EAliveState> StateChanged;
-
-        public EAliveState State
-        {
-            get => _state;
-            private set
-            {
-                _state = value;
-                StateChanged?.Invoke(value);
-            }
-        }
-        private EAliveState _state;
-
+        private ConnectionPool _connectionPool;
+        private List<AudioGroup> _groupsToDelete;
         private Timer _timer;
-        private long _lastUpdate;
-        private bool _disposed;
 
-        public AliveChecker()
+        public AliveChecker(ConnectionPool connectionPool)
         {
+            _connectionPool = connectionPool;
+            _groupsToDelete = new List<AudioGroup>();
         }
 
         public void Start()
         {
+            _connectionPool.Get += OnGroupGet;
             TimerCallback callback = new TimerCallback(Callback);
             _timer = new Timer(callback, null, 0, IDLE_TIME_MILLISECONDS);
-            State = EAliveState.Alive;
-            Update();
         }
 
-        public void Update()
+        private void OnGroupGet(AudioGroup group)
         {
-            _lastUpdate = DateTime.Now.Ticks;
+            _groupsToDelete.Remove(group);
         }
 
-        private void Callback(object? target)
+        private void Callback(object target)
         {
-            var now = DateTime.Now.Ticks;
-            if (_lastUpdate + IDLE_TIME_MILLISECONDS <= now)
+            foreach(var group in _groupsToDelete)
             {
-                State = EAliveState.Dead;
+                _connectionPool.Leave(group.Id);
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (_disposed == false)
+            var groupsToDelete = new List<AudioGroup>();
+            foreach(var pair in _connectionPool.AudioGroups)
             {
-                if (disposing)
+                if (pair.Value.IsPlaying == false)
                 {
-
+                    groupsToDelete.Add(pair.Value);
                 }
-                _timer.Dispose();
-                _disposed = true;
             }
+            _groupsToDelete = groupsToDelete;
         }
 
-        ~AliveChecker()
+        public void Stop()
         {
-            Dispose(false);
+            _connectionPool.Get -= OnGroupGet;
+            _timer.Dispose();
         }
     }
 }
