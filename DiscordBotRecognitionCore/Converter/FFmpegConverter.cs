@@ -29,14 +29,7 @@ namespace DiscordBotRecognition.Converter
         {
             try
             {
-                Console.WriteLine("Converting ffmpeg");
                 await _ffmpeg.StandardOutput.BaseStream.CopyToAsync(streamOut, token);
-                //int read;
-                //var buffer = new byte[32 * 1024];
-                //while ((read = await _ffmpeg.StandardOutput.BaseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                //{
-                //    streamOut.Write(buffer, 0, read);
-                //}
             }
             catch (Exception ex)
             {
@@ -71,7 +64,7 @@ namespace DiscordBotRecognition.Converter
             var ffmpeg = Process.Start(new ProcessStartInfo
             {
                 FileName = _executable,
-                Arguments = $"{additionalArgs} -loglevel warning -copyts -err_detect ignore_err -i \"{inputUrl}\" -f s16le -ac 2 -af \"atempo={Settings.Speed.Volume},firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar {Settings.Speed.Hz} -copy_unknown -sn -dn -ignore_unknown pipe:1",
+                Arguments = $"{additionalArgs} -loglevel warning -copyts -err_detect ignore_err -i \"{inputUrl}\" -f s16le -ac 2 -af \"atempo=\"{Settings.Speed.Volume}\",firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar {Settings.Speed.Hz} -copy_unknown -sn -dn -ignore_unknown pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
             });

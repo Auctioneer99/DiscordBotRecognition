@@ -1,0 +1,19 @@
+{
+  "Authentication": {
+    "KeycloakAuthentication": {
+      "ServerAddress": "http://localhost:8180",
+      "Realm": "apollon-music",
+      "PostLogoutRedirectUri": "http://localhost:57630/",
+      "ClientId": "KeycloakASPNETCore",
+      "ClientSecret": "secret-get-it-in-keycloakConsole-client-credentials"
+    }
+  },
+  "exclude": [
+    "**/bin",
+    "**/bower_components",
+    "**/jspm_packages",
+    "**/node_modules",
+    "**/obj",
+    "**/platforms"
+  ]
+}

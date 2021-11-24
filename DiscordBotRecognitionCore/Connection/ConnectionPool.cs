@@ -38,6 +38,7 @@ namespace DiscordBotRecognitionCore.Connection
             if (ConnectedChannels.TryRemove(id, out var group))
             {
                 Removed?.Invoke(group);
+                group.DisposeAsync();
                 return true;
             }
             return false;
@@ -52,6 +53,5 @@ namespace DiscordBotRecognitionCore.Connection
             }
             return false;
         }
-
     }
 }

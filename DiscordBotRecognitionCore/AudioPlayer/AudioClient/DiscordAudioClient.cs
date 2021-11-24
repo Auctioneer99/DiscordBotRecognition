@@ -1,4 +1,7 @@
-﻿using DiscordBotRecognitionCore.Recognition;
+﻿using Discord.Audio.Streams;
+using DiscordBotRecognitionCore.Recognition;
+using DiscordBotRecognitionCore.Recognition.Recognizers;
+using DiscordBotRecognitionCore.Synthesier;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,22 +20,22 @@ namespace DiscordBotRecognition.AudioPlayer.AudioClient
 
         private Discord.Audio.IAudioClient _client;
         private Discord.Audio.AudioOutStream _audioOutStream;
-
+        private IRecognizerFactory _recognizerFactory;
         private bool _disposed;
 
-        public DiscordAudioClient(ulong id, Discord.Audio.IAudioClient client)
+        public DiscordAudioClient(ulong id, Discord.Audio.IAudioClient client, IRecognizerFactory factory)
         {
             Id = id;
             _client = client;
+            _recognizerFactory = factory;
             _audioOutStream = _client.CreatePCMStream(Discord.Audio.AudioApplication.Music);
-            _client.StreamCreated += OnStreamCreated;
             _client.StreamDestroyed += OnStreamDisconnected;
             _client.Disconnected += OnDisconnected;
         }
 
         public IEnumerable<RecognizableClient> GetListenerStreams()
         {
-            return _client.GetStreams().Select(pair => new RecognizableClient(pair.Key, pair.Value));
+            return _client.GetStreams().Select(pair => new RecognizableClient(pair.Key, pair.Value, _recognizerFactory));
         }
 
         public Stream GetPCMStream()
@@ -47,7 +50,7 @@ namespace DiscordBotRecognition.AudioPlayer.AudioClient
 
         private async Task OnStreamCreated(ulong id, Stream stream)
         {
-            StreamConnected?.Invoke(new RecognizableClient(id, stream));
+
         }
 
         private async Task OnStreamDisconnected(ulong id)

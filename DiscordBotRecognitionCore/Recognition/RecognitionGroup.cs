@@ -1,4 +1,5 @@
-﻿using DiscordBotRecognition.AudioPlayer.AudioClient;
+﻿using DiscordBotRecognition.AudioPlayer;
+using DiscordBotRecognition.AudioPlayer.AudioClient;
 using DiscordBotRecognitionCore.Recognition;
 using System;
 using System.Collections.Generic;
@@ -8,24 +9,23 @@ namespace DiscordBotRecognition.Recognition
 {
     public class RecognitionGroup
     {
-        public ulong Id => _client.Id;
+        public IAudioClient Me => _audioGroup.Me;
+        public ulong Id => Me.Id;
 
         private Dictionary<ulong, RecognizableClient> _listeningClients;
-        private IAudioClient _client;
-        private IRecognizer _recognizer;
         private RecognitionSettings _settings;
+        private AudioGroup _audioGroup;
 
-        public RecognitionGroup(IAudioClient client, IRecognizer recognizer, RecognitionSettings settings)
+        public RecognitionGroup(AudioGroup audioGroup, RecognitionSettings settings)
         {
-            _client = client;
-            _recognizer = recognizer;
+            _audioGroup = audioGroup;
             _settings = settings;
             _listeningClients = new Dictionary<ulong, RecognizableClient>();
         }
 
-        public void AddRecognizableClient(RecognizableClient client)
+        public bool TryAddRecognizableClient(RecognizableClient client)
         {
-
+            return _listeningClients.TryAdd(client.Id, client);
         }
     }
 }

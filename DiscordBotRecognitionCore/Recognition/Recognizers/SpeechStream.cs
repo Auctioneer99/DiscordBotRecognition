@@ -7,7 +7,7 @@ namespace DiscordBotRecognition.Recognition
     public class SpeechStream : Stream
     {
         private AutoResetEvent _writeEvent;
-        private List<byte> _buffer;
+        private byte[] _buffer;
         private int _buffersize;
         private int _readposition;
         private int _writeposition;
@@ -17,11 +17,11 @@ namespace DiscordBotRecognition.Recognition
         {
             _writeEvent = new AutoResetEvent(false);
             _buffersize = bufferSize;
-            _buffer = new List<byte>(_buffersize);
-            for (int i = 0; i < _buffersize; i++)
-            {
-                _buffer.Add(new byte());
-            }
+            _buffer = new byte[bufferSize];
+            //for (int i = 0; i < _buffersize; i++)
+            //{
+            //    _buffer.Add(new byte());
+            //}
             _readposition = 0;
             _writeposition = 0;
         }

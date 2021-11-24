@@ -2,6 +2,7 @@
 using DiscordBotRecognition.AudioPlayer.Queue;
 using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Songs;
+using DiscordBotRecognitionCore.Synthesier;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace DiscordBotRecognition.AudioPlayer
         public PausableConverter Converter { get; private set; }
         public ISongQueue Queue { get; private set; }
 
+        public ISynthesier Synthesier { get; private set; }
+
         public bool IsPlaying => _isPlaying;
 
         private AudioGroupSettings _settings;
@@ -24,30 +27,23 @@ namespace DiscordBotRecognition.AudioPlayer
         private bool _isPlaying = false;
         private CancellationTokenSource _skipTokenSource;
 
-        public AudioGroup(IAudioClient me, ISongStreamConverter converter, AudioGroupSettings settings)
+        public AudioGroup(IAudioClient me, ISongStreamConverter converter, ISynthesier synthesier, AudioGroupSettings settings)
         {
+            Synthesier = synthesier;
             Me = me;
             Converter = new PausableConverter(converter);
             _settings = settings;
             Queue = new FIFOQueue(_settings.MaxQueueSize);
             _skipTokenSource = new CancellationTokenSource();
-            Me.Disconnected += OnDisconnected;
-        }
-
-        private void OnDisconnected()
-        {
-            DisposeAsync();
         }
 
         public async Task Play(bool _isResuming)
         {
-            Console.WriteLine(_isPlaying);
             if (_isPlaying)
             {
                 return;
             }
             _isPlaying = true;
-            Console.WriteLine(Converter.Paused);
             var streamOut = Me.GetPCMStream();
             if (Converter.Paused)
             {

@@ -45,7 +45,6 @@ namespace DiscordBotRecognition.Converter
 
             try
             {
-                Console.WriteLine("Converting pausable");
                 await _converter.ConvertToPCM(streamOut, _linkedTokenSource.Token);
             }
             catch

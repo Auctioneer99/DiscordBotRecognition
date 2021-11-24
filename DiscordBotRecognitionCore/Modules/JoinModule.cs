@@ -1,5 +1,6 @@
 ﻿using Discord.Commands;
 using DiscordBotRecognitionCore.Connection;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DiscordBotRecognitionCore.Modules
@@ -22,20 +23,6 @@ namespace DiscordBotRecognitionCore.Modules
             {
                 await ReplyAsync("```\nCan't connect to server\n```");
             }
-            /*
-            if (ConnectionPool.IsConnected(Id) == false)
-            {
-                var audioClient = await (Context.User as IVoiceState).VoiceChannel.ConnectAsync();
-                IAudioClient discordClient = new DiscordAudioClient(Id, audioClient);
-                var group = new AudioGroup(discordClient, FactoryConverter.Get(), AudioGroupSettings.Default());
-                if (await ConnectionPool.TryJoin(Context.Guild.Id, group))
-                {
-                }
-                else
-                {
-                    await group.DisposeAsync();
-                }
-            }*/
         }
 
         [Command("leave")]

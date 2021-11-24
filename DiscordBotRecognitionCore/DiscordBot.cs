@@ -7,8 +7,10 @@ using DiscordBotRecognition.Converter;
 using DiscordBotRecognition.Modules;
 using DiscordBotRecognition.MusicSearch;
 using DiscordBotRecognitionCore.Alive;
+using DiscordBotRecognitionCore.BackEnd;
 using DiscordBotRecognitionCore.Connection;
 using DiscordBotRecognitionCore.Converter;
+using DiscordBotRecognitionCore.Recognition.Recognizers;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -44,23 +46,33 @@ namespace DiscordBotRecognition
 
         public static async Task<DiscordBot> DefaultBuild(string googleToken)
         {
-            DiscordSocketClient client = new DiscordSocketClient();
+            DiscordSocketConfig config = new DiscordSocketConfig { AlwaysDownloadUsers = true };
+            
+            DiscordSocketClient client = new DiscordSocketClient(config);
             CommandService commands = new CommandService();
             IMusicSearcher searcher = new YouTubeSearcher(googleToken);
             ConnectionPool connectionPool = new ConnectionPool();
+            RecognitionPool recognitionPool = new RecognitionPool();
             var aliveChecker = new AliveChecker(connectionPool);
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             var filePath = isWindows ?
                 Path.Join(Directory.GetCurrentDirectory(), "ffmpeg.exe") :
                 "/usr/bin/ffmpeg";
             IConverterFactory converterFactory = new FFmpegConverterFactory(filePath);
-
+            IRecognizerFactory recognizerFactory = new RecognizerFactory();
             DiscordAudioConnector connector = new DiscordAudioConnector()
             {
+                FactoryRecognizer = recognizerFactory,
                 FactoryConverter = converterFactory,
                 ConnectionPool = connectionPool
             };
+
+            BackEndService backEnd = new BackEndService();
+
             ServiceProvider provider = new ServiceCollection()
+                .AddSingleton(recognizerFactory)
+                .AddSingleton(backEnd)
+                .AddSingleton(recognitionPool)
                 .AddSingleton(connector)
                 .AddSingleton(client)
                 .AddSingleton(commands)

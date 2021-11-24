@@ -8,7 +8,7 @@ namespace DiscordBotRecognitionCore.Recognition
     {
         public int MaxListeners { get; private set; }
 
-        public RecognitionSettings Default()
+        public static RecognitionSettings Default()
         {
             return new RecognitionSettings() { MaxListeners = 1 };
         }
