@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.IO;
 
 namespace DiscordBotServer
 {
@@ -21,7 +22,9 @@ namespace DiscordBotServer
                     webBuilder.UseUrls("http://*:" + port);
                     webBuilder.ConfigureAppConfiguration((hostingContext, config) => 
                     {
-                        config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                        config.AddEnvironmentVariables();
+                        config.AddCommandLine(args);
+                        config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
                     });
                 });
     }
