@@ -16,11 +16,11 @@ namespace DiscordBotRecognition
         public async Task MainAsync()
         {
             //Task.Run(async () => await Test());
-            
-            var bot = await DiscordBot.DefaultBuild("Пошлите в каэску господа", Credential.GoogleAPIToken, Credential.KeycloakSecret);
-            await bot.Start(Credential.DiscordToken);
+
+            //var bot = await DiscordBot.DefaultBuild("Пошлите в каэску господа", Credential.GoogleAPIToken, Credential.KeycloakSecret);
+            //await bot.Start(Credential.DiscordToken);
+            throw new NotImplementedException("Do not run project");
             await Task.Delay(-1);
-            
         }
         /*
         private async Task Test()

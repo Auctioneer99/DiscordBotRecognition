@@ -7,8 +7,6 @@ namespace DiscordBotRecognitionCore.Modules
 {
     public class JoinModule : AModuleBase
     {
-        public DiscordAudioConnector AudioConnector { get; set; }
-
         [Command("join", RunMode = RunMode.Async)]
         [Summary("Connecting bot to active voice channel")]
         public async Task JoinCmd()
