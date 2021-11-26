@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiscordBotRecognition.AudioPlayer.AudioClient;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,7 +8,7 @@ namespace DiscordBotRecognitionCore.Synthesier
 {
     public class NullSynthesier : ASynthesier
     {
-        public NullSynthesier() : base(null)
+        public NullSynthesier(IAudioClient group) : base(group)
         {
 
         }

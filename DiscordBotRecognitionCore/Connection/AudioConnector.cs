@@ -45,7 +45,7 @@ namespace DiscordBotRecognitionCore.Connection
                 }
                 catch
                 {
-                    group = new AudioGroup(discordClient, FactoryConverter.Get(), new NullSynthesier(), AudioGroupSettings.Default());
+                    group = new AudioGroup(discordClient, FactoryConverter.Get(), new NullSynthesier(discordClient), AudioGroupSettings.Default());
                 }
                 
                 if (await ConnectionPool.TryJoin(id, group))
