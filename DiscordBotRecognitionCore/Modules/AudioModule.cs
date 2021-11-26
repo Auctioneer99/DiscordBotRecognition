@@ -16,7 +16,6 @@ namespace DiscordBotRecognitionCore.Modules
     public class AudioModule : AModuleBase
     {
         public IMusicSearcher Searcher { get; set; }
-        public DiscordAudioConnector AudioConnector { get; set; }
 
         [Command("play", RunMode = RunMode.Async)]
         [Summary("Adding song to queue or resuming/playing")]
@@ -160,26 +159,6 @@ namespace DiscordBotRecognitionCore.Modules
             {
                 group.Stop();
             }
-        }
-
-        private async Task<AudioGroup> Connect()
-        {
-            AudioConnector.Context = Context;
-            return await AudioConnector.TryConnect(Id);
-            /*
-            if (ConnectionPool.IsConnected(Id) == false)
-            {
-                var audioClient = await (Context.User as IVoiceState).VoiceChannel.ConnectAsync();
-                IAudioClient discordClient = new DiscordAudioClient(Id, audioClient);
-                var group = new AudioGroup(discordClient, FactoryConverter.Get(), AudioGroupSettings.Default());
-                if (await ConnectionPool.TryJoin(Id, group) == false)
-                {
-                    await group.DisposeAsync();
-                    return null;
-                }
-                return group;
-            }
-            return null;*/
         }
     }
 }

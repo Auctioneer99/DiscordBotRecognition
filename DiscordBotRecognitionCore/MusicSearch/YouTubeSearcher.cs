@@ -43,10 +43,7 @@ namespace DiscordBotRecognition.MusicSearch
 
         private async Task<ISong> GetSongByLink(string link)
         {
-            var split = link.Split('=');
-            var id = split[split.Length - 1];
-
-            YouTubeSong song = new YouTubeSong(id, _client);
+            YouTubeSong song = new YouTubeSong(link);
             await song.Initialize();
             return song;
         }
@@ -65,7 +62,7 @@ namespace DiscordBotRecognition.MusicSearch
                 return null;
             }
 
-            YouTubeSong song = new YouTubeSong(rawSong.Id.VideoId, _client);
+            YouTubeSong song = new YouTubeSong("https://www.youtube.com/watch?v=" + rawSong.Id.VideoId);
             await song.Initialize();
             return song;
         }

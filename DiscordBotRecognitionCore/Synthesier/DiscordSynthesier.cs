@@ -20,7 +20,6 @@ namespace DiscordBotRecognitionCore.Synthesier
         public DiscordSynthesier(IAudioClient group)
         {
             _group = group;
-            _synthesier.Volume = 200;
             _synthesier.SelectVoice("Microsoft Irina Desktop");
         }
 

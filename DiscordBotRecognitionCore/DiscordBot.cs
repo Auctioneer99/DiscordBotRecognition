@@ -44,7 +44,7 @@ namespace DiscordBotRecognition
             return true;
         }
 
-        public static async Task<DiscordBot> DefaultBuild(string googleToken)
+        public static async Task<DiscordBot> DefaultBuild(string googleToken, string keycloakSecret)
         {
             DiscordSocketConfig config = new DiscordSocketConfig { AlwaysDownloadUsers = true };
             
@@ -68,7 +68,7 @@ namespace DiscordBotRecognition
             };
 
             BackEndService backEnd = new BackEndService();
-
+            await backEnd.Initialize(keycloakSecret);
             ServiceProvider provider = new ServiceCollection()
                 .AddSingleton(recognizerFactory)
                 .AddSingleton(backEnd)

@@ -56,7 +56,15 @@ namespace DiscordBotRecognition.AudioPlayer
             {
                 Converter.Reset();
                 _skipTokenSource = new CancellationTokenSource();
-                Converter.SetSong(song);
+                try
+                {
+                    Converter.SetSong(song);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
                 await Converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
             }
             _isPlaying = false;
