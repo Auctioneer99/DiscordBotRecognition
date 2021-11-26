@@ -28,6 +28,13 @@ namespace DiscordBotRecognitionCore.Connection
 
         public SocketCommandContext Context { get; set; }
 
+        private string _greetings;
+
+        public DiscordAudioConnector(string greetingsText)
+        {
+            _greetings = greetingsText;
+        }
+
         public async Task<AudioGroup> TryConnect(ulong id)
         {
             if (ConnectionPool.IsConnected(id) == false)
@@ -37,7 +44,7 @@ namespace DiscordBotRecognitionCore.Connection
                 var group = new AudioGroup(discordClient, FactoryConverter.Get(), new DiscordSynthesier(discordClient), AudioGroupSettings.Default());
                 if (await ConnectionPool.TryJoin(id, group))
                 {
-                    await group.Synthesier.Speak("Пошлите в каэску господа");
+                    await group.Synthesier.Speak(_greetings);
                     return group;
                 }
                 else

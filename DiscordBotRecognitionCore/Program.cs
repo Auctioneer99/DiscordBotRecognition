@@ -18,7 +18,7 @@ namespace DiscordBotRecognition
         {
             //Task.Run(async () => await Test());
             
-            var bot = await DiscordBot.DefaultBuild(Credential.GoogleAPIToken, Credential.KeycloakSecret);
+            var bot = await DiscordBot.DefaultBuild("Пошлите в каэску господа", Credential.GoogleAPIToken, Credential.KeycloakSecret);
             await bot.Start(Credential.DiscordToken);
             await Task.Delay(-1);
             

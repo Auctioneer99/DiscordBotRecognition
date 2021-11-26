@@ -44,7 +44,7 @@ namespace DiscordBotRecognition
             return true;
         }
 
-        public static async Task<DiscordBot> DefaultBuild(string googleToken, string keycloakSecret)
+        public static async Task<DiscordBot> DefaultBuild(string greetingsString, string googleToken, string keycloakSecret)
         {
             DiscordSocketConfig config = new DiscordSocketConfig { AlwaysDownloadUsers = true };
             
@@ -60,7 +60,7 @@ namespace DiscordBotRecognition
                 "/usr/bin/ffmpeg";
             IConverterFactory converterFactory = new FFmpegConverterFactory(filePath);
             IRecognizerFactory recognizerFactory = new RecognizerFactory();
-            DiscordAudioConnector connector = new DiscordAudioConnector()
+            DiscordAudioConnector connector = new DiscordAudioConnector(greetingsString)
             {
                 FactoryRecognizer = recognizerFactory,
                 FactoryConverter = converterFactory,

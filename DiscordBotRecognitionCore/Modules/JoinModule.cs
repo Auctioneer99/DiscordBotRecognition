@@ -13,8 +13,7 @@ namespace DiscordBotRecognitionCore.Modules
         [Summary("Connecting bot to active voice channel")]
         public async Task JoinCmd()
         {
-            AudioConnector.Context = Context;
-            var group = await AudioConnector.TryConnect(Id);
+            var group = await Connect();
             if (group != null)
             {
                 await ReplyAsync("```\nConnected\n```");
