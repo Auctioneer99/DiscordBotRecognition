@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Speech.AudioFormat;
 using System.Speech.Synthesis;
 using System.Text;
@@ -21,7 +22,12 @@ namespace DiscordBotRecognitionCore.Synthesier
         public DiscordSynthesier(IAudioClient group)
         {
             _group = group;
-            _synthesier.SelectVoice("Microsoft Irina Desktop");
+            var voices = _synthesier.GetInstalledVoices();
+            foreach (var v in voices)
+            {
+                Console.WriteLine($"{v.VoiceInfo.Name} {v.VoiceInfo.Description} {v.VoiceInfo.Culture}");
+            }
+            _synthesier.SelectVoice(voices.FirstOrDefault(v => v.VoiceInfo.Culture.Name == "ru-RU")?.VoiceInfo.Name ?? "");
         }
 
         public async Task Speak(string text)
