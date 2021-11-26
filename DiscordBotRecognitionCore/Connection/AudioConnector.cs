@@ -38,17 +38,19 @@ namespace DiscordBotRecognitionCore.Connection
             {
                 var audioClient = await(Context.User as IVoiceState).VoiceChannel.ConnectAsync();
                 IAudioClient discordClient = new DiscordAudioClient(id, audioClient, FactoryRecognizer);
-                var group = new AudioGroup(discordClient, FactoryConverter.Get(), new DiscordSynthesier(discordClient), AudioGroupSettings.Default());
+                AudioGroup group;
+                try
+                {
+                    group = new AudioGroup(discordClient, FactoryConverter.Get(), new DiscordSynthesier(discordClient), AudioGroupSettings.Default());
+                }
+                catch
+                {
+                    group = new AudioGroup(discordClient, FactoryConverter.Get(), new NullSynthesier(), AudioGroupSettings.Default());
+                }
+                
                 if (await ConnectionPool.TryJoin(id, group))
                 {
-                    try
-                    {
-                        await group.Synthesier.Speak(_greetings);
-                    }
-                    catch
-                    {
-                        Console.WriteLine("OS does not support tts");
-                    }
+                    await group.Synthesier.Speak(_greetings);
                     return group;
                 }
                 else
