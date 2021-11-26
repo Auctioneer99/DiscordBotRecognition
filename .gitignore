@@ -7,6 +7,8 @@ Credentials/
 ffmpeg.exe
 libsodium.dll
 opus.dll
+appsettings.Development.json
+appsettings.json
 
 # User-specific files
 *.rsuser
