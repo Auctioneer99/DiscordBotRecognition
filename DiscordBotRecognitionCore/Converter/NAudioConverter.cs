@@ -4,10 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscordBotRecognition.Converter.Settings;
 using DiscordBotRecognition.Songs;
-using NAudio.Wave;
+//using NAudio.Wave;
 
 namespace DiscordBotRecognition.Converter
 {
+    /*
     public class NAudioConverter : ISongStreamConverter
     {
         private MediaFoundationReader _reader;
@@ -51,5 +52,5 @@ namespace DiscordBotRecognition.Converter
         {
             throw new NotImplementedException();
         }
-    }
+    }*/
 }

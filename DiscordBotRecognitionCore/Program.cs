@@ -5,7 +5,6 @@ using System.Speech.Recognition;
 using System.Threading.Tasks;
 using DiscordBotRecognition.Credentials;
 using DiscordBotRecognition.Recognition;
-using NAudio.Wave;
 
 namespace DiscordBotRecognition
 {
@@ -23,7 +22,7 @@ namespace DiscordBotRecognition
             await Task.Delay(-1);
             
         }
-
+        /*
         private async Task Test()
         {
             WaveInEvent waveSource = null;
@@ -64,6 +63,6 @@ namespace DiscordBotRecognition
             {
                 Console.WriteLine(args.Result.Text);
             }
-        }
+        }*/
     }
 }
