@@ -24,10 +24,10 @@ namespace DiscordBotServer
 
         private DiscordBot BuildBot()
         {
-            var buildTask = DiscordBot.DefaultBuild(Configuration["DiscordBot:google"], Configuration["Backend:keycloakSecret"]);
+            var buildTask = DiscordBot.DefaultBuild(Configuration["GOOGLE_API_KEY"], Configuration["KEYCLOAK_SECRET"]);
             var bot = buildTask.GetAwaiter().GetResult();
 
-            var startTask = bot.Start(Configuration["DiscordBot:token"]);
+            var startTask = bot.Start(Configuration["DISCORD_TOKEN"]);
             startTask.GetAwaiter().GetResult();
 
             return bot;

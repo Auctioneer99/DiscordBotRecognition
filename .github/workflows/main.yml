@@ -16,3 +16,7 @@ jobs:
           email: ${{ secrets.HEROKU_EMAIL }}
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+        env:
+          HD_GOOGLE_API_KEY: ${{secrets.GOOGLE_API_KEY}}
+          HD_DISCORD_TOKEN: ${{secrets.DISCORD_TOKEN}}
+          HD_KEYCLOAK_SECRET: ${{secrets.KEYCLOAK_SECRET}}
