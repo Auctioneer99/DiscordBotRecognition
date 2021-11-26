@@ -11,6 +11,7 @@ using DiscordBotRecognitionCore.BackEnd;
 using DiscordBotRecognitionCore.Connection;
 using DiscordBotRecognitionCore.Converter;
 using DiscordBotRecognitionCore.Recognition.Recognizers;
+using Google.Apis.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -50,7 +51,11 @@ namespace DiscordBotRecognition
             
             DiscordSocketClient client = new DiscordSocketClient(config);
             CommandService commands = new CommandService();
-            IMusicSearcher searcher = new YouTubeSearcher(googleToken);
+            BaseClientService.Initializer initializer = new BaseClientService.Initializer()
+            {
+                ApiKey = googleToken
+            };
+            IMusicSearcher searcher = new YouTubeSearcher(initializer);
             ConnectionPool connectionPool = new ConnectionPool();
             RecognitionPool recognitionPool = new RecognitionPool();
             var aliveChecker = new AliveChecker(connectionPool);
@@ -64,7 +69,8 @@ namespace DiscordBotRecognition
             {
                 FactoryRecognizer = recognizerFactory,
                 FactoryConverter = converterFactory,
-                ConnectionPool = connectionPool
+                ConnectionPool = connectionPool,
+                Initializer = initializer
             };
 
             BackEndService backEnd = new BackEndService();

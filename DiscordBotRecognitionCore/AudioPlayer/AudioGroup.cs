@@ -18,7 +18,7 @@ namespace DiscordBotRecognition.AudioPlayer
         public PausableConverter Converter { get; private set; }
         public ISongQueue Queue { get; private set; }
 
-        public ISynthesier Synthesier { get; private set; }
+        public ASynthesier Synthesier { get; private set; }
 
         public bool IsPlaying => _isPlaying;
 
@@ -27,7 +27,7 @@ namespace DiscordBotRecognition.AudioPlayer
         private bool _isPlaying = false;
         private CancellationTokenSource _skipTokenSource;
 
-        public AudioGroup(IAudioClient me, ISongStreamConverter converter, ISynthesier synthesier, AudioGroupSettings settings)
+        public AudioGroup(IAudioClient me, ISongStreamConverter converter, ASynthesier synthesier, AudioGroupSettings settings)
         {
             Synthesier = synthesier;
             Me = me;

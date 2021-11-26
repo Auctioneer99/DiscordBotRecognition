@@ -3,28 +3,16 @@ using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using System.Linq;
 using System.Threading.Tasks;
-using YoutubeExplode;
 
 namespace DiscordBotRecognition.MusicSearch
 {
     public class YouTubeSearcher : IMusicSearcher
     {
-        private YoutubeClient _client;
         private YouTubeService _service;
-        private string _apiKey;
 
-        public YouTubeSearcher(string apiKey)
+        public YouTubeSearcher(BaseClientService.Initializer initializer)
         {
-            _apiKey = apiKey;
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            BaseClientService.Initializer i = new BaseClientService.Initializer();
-            i.ApiKey = _apiKey;
-            _service = new YouTubeService(i);
-            _client = new YoutubeClient();
+            _service = new YouTubeService(initializer);
         }
 
         public async Task<ISong> SearchSong(string input)

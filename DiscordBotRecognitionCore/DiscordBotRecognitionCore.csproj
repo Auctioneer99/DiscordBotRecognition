@@ -12,6 +12,8 @@
 	
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.4.0" />
+    <PackageReference Include="Google.Apis.Speech.v1" Version="1.55.0.2499" />
+    <PackageReference Include="Google.Apis.Texttospeech.v1" Version="1.55.0.2500" />
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.55.0.2449" />
     <PackageReference Include="Keycloak.Net" Version="1.0.18" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
