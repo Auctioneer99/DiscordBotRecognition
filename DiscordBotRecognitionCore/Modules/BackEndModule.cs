@@ -68,12 +68,12 @@ namespace DiscordBotRecognitionCore.Modules
                     break;
                 case 1:
                     {
+                        var pl = response.FirstOrDefault();
+                        var songs = pl.Tracks.Select(t => t.Convert());
                         if (ConnectionPool.TryGetConnection(Id, out var group) == false)
                         {
                             group = await Connect();
                         }
-                        var pl = response.FirstOrDefault();
-                        var songs = pl.Tracks.Select(t => t.Convert());
                         await ReplyAsync($"```\nPlaylist added! {pl.Name}, {pl.DiscordIdentity}\n```");
                         bool isFirst = true;
                         foreach (var s in songs)

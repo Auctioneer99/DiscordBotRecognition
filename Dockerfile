@@ -22,7 +22,7 @@ RUN ./configure --prefix=/libs
 RUN make
 RUN make install
 
-WORKDIR "/src/DiscordBotServer/DiscordBotServer"
+WORKDIR "/src/DiscordBotServer"
 RUN dotnet restore "DiscordBotServer.csproj"
 RUN dotnet build "DiscordBotServer.csproj" -c Release -o /app/build
 RUN dotnet publish "DiscordBotServer.csproj" -c Release -o /app/publish
