@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DiscordBotRecognition\DiscordBotRecognitionCore\DiscordBotRecognitionCore.csproj" />
+    <ProjectReference Include="..\DiscordBotRecognitionCore\DiscordBotRecognitionCore.csproj" />
   </ItemGroup>
 
 </Project>
