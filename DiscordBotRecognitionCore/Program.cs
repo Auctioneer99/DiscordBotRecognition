@@ -3,7 +3,7 @@ using System.IO;
 using System.Speech.AudioFormat;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
-using DiscordBotRecognition.Credentials;
+//using DiscordBotRecognition.Credentials;
 using DiscordBotRecognition.Recognition;
 
 namespace DiscordBotRecognition

@@ -59,13 +59,13 @@ namespace DiscordBotRecognition.AudioPlayer
                 try
                 {
                     Converter.SetSong(song);
+                    await Converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
                 }
                 catch(Exception e)
                 {
                     Console.WriteLine(e);
                     continue;
                 }
-                await Converter.ConvertToPCM(streamOut, _skipTokenSource.Token);
             }
             _isPlaying = false;
         }
