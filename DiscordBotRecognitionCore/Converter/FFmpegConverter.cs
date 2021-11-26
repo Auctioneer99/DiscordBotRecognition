@@ -61,10 +61,12 @@ namespace DiscordBotRecognition.Converter
             bool shouldAddWebArgs = inputUrl.StartsWith("http");
             string additionalArgs = shouldAddWebArgs ? webArgs : "";
 
+            var audiofilter = $"atempo=\"{Settings.Speed.Volume.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}\",firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'";
+
             var ffmpeg = Process.Start(new ProcessStartInfo
             {
                 FileName = _executable,
-                Arguments = $"{additionalArgs} -loglevel warning -copyts -err_detect ignore_err -i \"{inputUrl}\" -f s16le -ac 2 -af \"atempo=\"{Settings.Speed.Volume}\",firequalizer=gain_entry='entry(0,{Settings.Bass});entry(250,{(int)(Settings.Bass/4)});entry(1000,0);entry(4000,{(int)Settings.Treble/4});entry(16000,{Settings.Treble})'\" -ar {Settings.Speed.Hz} -copy_unknown -sn -dn -ignore_unknown pipe:1",
+                Arguments = $"{additionalArgs} -loglevel warning -copyts -err_detect ignore_err -i \"{inputUrl}\" -f s16le -ac 2 -af \"{audiofilter}\" -ar {Settings.Speed.Hz} -copy_unknown -sn -dn -ignore_unknown pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
             });

@@ -36,7 +36,12 @@ namespace DiscordBotRecognitionCore.Connection
         {
             if (ConnectionPool.IsConnected(id) == false)
             {
-                var audioClient = await(Context.User as IVoiceState).VoiceChannel.ConnectAsync();
+                var voiceChannel = (Context.User as IVoiceState).VoiceChannel;
+                if (voiceChannel == null)
+                {
+                    throw new Exception("You must be in voice channel to perform this command");
+                }
+                var audioClient = await voiceChannel.ConnectAsync();
                 IAudioClient discordClient = new DiscordAudioClient(id, audioClient, FactoryRecognizer);
                 AudioGroup group;
                 try

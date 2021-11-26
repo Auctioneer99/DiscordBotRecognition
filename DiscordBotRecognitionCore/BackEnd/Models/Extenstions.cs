@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,7 @@ namespace DiscordBotRecognitionCore.BackEnd.Models
 {
     public static class Extensions
     {
-        public static string UrlEncodedName(this SocketUser user)
+        public static string UrlEncodedName(this IUser user)
         {
             return $"{user.Username}%23{user.DiscriminatorValue}";
         }

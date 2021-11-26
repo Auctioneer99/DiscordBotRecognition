@@ -16,13 +16,33 @@ namespace DiscordBotRecognitionCore.Modules
     {
         public BackEndService Service { get; set; }
 
-        [Command("serverplaylist", RunMode = RunMode.Async)]
+        [Command("serverplaylists", RunMode = RunMode.Async)]
+        [Alias("sp")]
         [Summary("Get all public playlists of users on this server")]
-        public async Task GetServerPlaylists()
+        public async Task GetServerPlaylists([Remainder]string query = "")
         {
-            var users = await GetAllUsers();
-            var response = await Service.GetPlaylistsByUsers(users);
-            await ReplyAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
+            IEnumerable<string> users = null;
+            if (query != "")
+            {
+                var mentions = Context.Message.MentionedUsers;
+                if (mentions.Count > 0)
+                {
+                    users = Context.Message.MentionedUsers.Select(u => u.ToString());
+                }
+            }
+            if (users == null)
+            {
+                users = await GetAllUsers();
+            }
+            var response = await Service.GetPublicPlaylistsByUsers(users);
+            if (response.Count > 0)
+            {
+                await ReplyAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
+            }
+            else
+            {
+                await ReplyAsync("No playlists found");
+            }
         }
 
         [Command("services")]
@@ -33,33 +53,55 @@ namespace DiscordBotRecognitionCore.Modules
             await ReplyAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
         }
 
-        [Command("playlists")]
-        [Summary("Retrieves all supported music services")]
-        public async Task GetAllPlaylists()
+        [Command("availableplaylists")]
+        [Alias("ap")]
+        [Summary("Retrieves all posible playlists for you")]
+        public async Task GetAllPlaylists([Remainder] string query = "")
         {
-            var response = await Service.GetAllPlaylists(await GetAllUsers(), Context.User.ToString());
-            await (await Context.User.GetOrCreateDMChannelAsync())
-                .SendMessageAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
+            IEnumerable<string> users = null;
+            if (query != "")
+            {
+                var mentions = Context.Message.MentionedUsers;
+                if (mentions.Count > 0)
+                {
+                    users = Context.Message.MentionedUsers.Select(u => u.ToString());
+                }
+            }
+            if (users == null)
+            {
+                users = await GetAllUsers();
+            }
+            var user = Context.User.ToString();
+            var response = await Service.GetAvailablePlaylists(user, users.Append(user));
+            var channel = await Context.User.GetOrCreateDMChannelAsync();
+            if (response.Any())
+            {
+                await channel.SendMessageAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
+            }
+            else
+            {
+                await channel.SendMessageAsync("No available playlists");
+            }
         }
 
         [Command("playlist", RunMode = RunMode.Async)]
+        [Alias("pl")]
         [Summary("Plays playlist")]
         public async Task GetAllPlaylistsByName([Remainder] string query = "")
         {
-            var playlist = Regex.Replace(query, @"<@!\d+>", string.Empty).Trim();
-            if (playlist == "")
+            var playlistName = Regex.Replace(query, @"<@!\d+>", string.Empty).Trim();
+            if (playlistName == "")
             {
                 await ReplyAsync("Playlist did not specified");
                 return;
             }
-            var requestedIdentities = Context.Message.MentionedUsers.Select(u => u.UrlEncodedName());
+            var requestedIdentities = Context.Message.MentionedUsers.Select(u => u.ToString());
             if (requestedIdentities.Any() == false)
             {
-                requestedIdentities = new List<string>() { Context.User.UrlEncodedName() };
+                requestedIdentities = new List<string>() { Context.User.ToString() };
             }
 
-
-            var response = await Service.GetPlaylists(Context.User.UrlEncodedName(), requestedIdentities, playlist);
+            var response = await Service.GetAvailablePlaylists(Context.User.ToString(), requestedIdentities, playlistName);
 
             switch(response.Count)
             {
@@ -68,19 +110,25 @@ namespace DiscordBotRecognitionCore.Modules
                     break;
                 case 1:
                     {
-                        var pl = response.FirstOrDefault();
-                        var songs = pl.Tracks.Select(t => t.Convert());
+                        var shortPlaylist = response.FirstOrDefault();
+                        var playlist = await Service.GetPlaylist(shortPlaylist.Id);
+                        if (playlist == null)
+                        {
+                            await ReplyAsync("There is no playlist");
+                            return;
+                        }
+                        var songs = playlist.Tracks.Select(t => t.Convert());
                         if (ConnectionPool.TryGetConnection(Id, out var group) == false)
                         {
                             group = await Connect();
                         }
-                        await ReplyAsync($"```\nPlaylist added! {pl.Name}, {pl.DiscordIdentity}\n```");
                         bool isFirst = true;
                         foreach (var s in songs)
                         {
                             group.Queue.AddSong(s.GetAwaiter().GetResult());
                             if (isFirst)
                             {
+                                await ReplyAsync($"```\nPlaylist added! {playlist.Name}, {playlist.DiscordIdentity}, Count = {playlist.Tracks.Count}\n```");
                                 group.Play(false);
                                 isFirst = false;
                             }
@@ -101,11 +149,10 @@ namespace DiscordBotRecognitionCore.Modules
             }
         }
 
-        private async Task<string[]> GetAllUsers()
+        private async Task<IEnumerable<string>> GetAllUsers()
         {
             return (await Context.Channel.GetUsersAsync(CacheMode.AllowDownload).FlattenAsync())
-                .Select(user => user.ToString())
-                .ToArray();
+                .Select(user => user.ToString());
         }
     }
 }
