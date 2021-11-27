@@ -73,8 +73,7 @@ namespace DiscordBotRecognition
                 Initializer = initializer
             };
 
-            BackEndService backEnd = new BackEndService();
-            await backEnd.Initialize(keycloakSecret);
+            BackEndService backEnd = new BackEndService(keycloakSecret);
             ServiceProvider provider = new ServiceCollection()
                 .AddSingleton(recognizerFactory)
                 .AddSingleton(backEnd)

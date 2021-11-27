@@ -25,5 +25,10 @@
         {
             return new Speed(1.25, 60000);
         }
+
+        public override string ToString()
+        {
+            return Volume.ToString();
+        }
     }
 }

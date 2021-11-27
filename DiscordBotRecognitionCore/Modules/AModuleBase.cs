@@ -32,5 +32,10 @@ namespace DiscordBotRecognitionCore.Modules
             AudioConnector.Context = Context;
             return await AudioConnector.TryConnect(Id);
         }
+
+        protected async Task SendFormattedMessage(string message)
+        {
+            await ReplyAsync($"```\n{message}\n```");
+        }
     }
 }

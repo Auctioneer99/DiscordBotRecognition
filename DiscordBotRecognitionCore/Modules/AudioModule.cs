@@ -84,7 +84,7 @@ namespace DiscordBotRecognitionCore.Modules
             }
             if (CheckConnection(Id, out var group))
             {
-                if (group.Queue.TryRemove(songId, out var song))
+                if (group.Queue.TryRemove(songId - 1, out var song))
                 {
                     await ReplyAsync($"```\nSong removed! {song.Name}\n```");
                 }

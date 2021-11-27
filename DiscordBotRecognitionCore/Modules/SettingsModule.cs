@@ -84,6 +84,7 @@ namespace DiscordBotRecognitionCore.Modules
                 sb.AppendLine($"CONVERT SETTINGS:");
                 sb.AppendLine($"Bass = {info.ConvertInfo.Bass}");
                 sb.AppendLine($"Treble = {info.ConvertInfo.Treble}");
+                sb.AppendLine($"Speed = {info.ConvertInfo.Speed}");
                 sb.AppendLine("```");
                 await ReplyAsync(sb.ToString());
             }

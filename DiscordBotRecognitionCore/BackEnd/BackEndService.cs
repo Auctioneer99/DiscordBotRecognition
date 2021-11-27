@@ -21,37 +21,47 @@ namespace DiscordBotRecognitionCore.BackEnd
         private string _authPath => $"https://apollon-music-keycloak.herokuapp.com/auth/realms/apollon-music/protocol/openid-connect/token";
 
 
-        private KeycloakAuthResponse _keycloakAuthResponse;
-        private HttpClient _client = new HttpClient();
-        
-        public BackEndService()
+        private KeycloakAuthResponse _keycloakAuthResponse = new KeycloakAuthResponse()
         {
-
+            ExpiresIn = 0
+        };
+        private DateTime _lastUpdate = new DateTime(0);
+        private long _threshold = 30;
+        private HttpClient _client = new HttpClient();
+        private string _clientSecret;
+        
+        public BackEndService(string clientSecret)
+        {
+            _clientSecret = clientSecret;
         }
 
-        public async Task Initialize(string clientSecret)
+        private async Task UpdateAccessToken()
         {
-            var request = new HttpRequestMessage()
+            if ((_keycloakAuthResponse.ExpiresIn + _lastUpdate.Ticks / 1000 - _threshold) <= DateTime.Now.Ticks / 1000)
             {
-                RequestUri = new Uri(_authPath),
-                Method = HttpMethod.Post,
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(_authPath),
+                    Method = HttpMethod.Post,
+                    Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
                 {
                     new KeyValuePair<string, string>("grant_type", "client_credentials"),
                     new KeyValuePair<string, string>("client_id", "discord-bot"),
-                    new KeyValuePair<string, string>("client_secret", clientSecret)
+                    new KeyValuePair<string, string>("client_secret", _clientSecret)
                 })
-            };
+                };
 
-            HttpResponseMessage response = await _client.SendAsync(request);
-            if (response.IsSuccessStatusCode)
-            {
-                string data = await response.Content.ReadAsStringAsync();
-                _keycloakAuthResponse = JsonSerializer.Deserialize<KeycloakAuthResponse>(data);
-            }
-            else
-            {
-                throw new Exception("Not authorized");
+                HttpResponseMessage response = await _client.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    _lastUpdate = DateTime.Now;
+                    string data = await response.Content.ReadAsStringAsync();
+                    _keycloakAuthResponse = JsonSerializer.Deserialize<KeycloakAuthResponse>(data);
+                }
+                else
+                {
+                    throw new Exception("Internal server error");
+                }
             }
         }
 
@@ -86,6 +96,7 @@ namespace DiscordBotRecognitionCore.BackEnd
                 RequestUri = new Uri(_playlistById + id),
                 Method = HttpMethod.Get,
             };
+            await UpdateAccessToken();
             request.Headers.Authorization =
                 new AuthenticationHeaderValue(_keycloakAuthResponse.TokenType, _keycloakAuthResponse.AccessToken);
 
@@ -116,6 +127,7 @@ namespace DiscordBotRecognitionCore.BackEnd
                 RequestUri = new Uri(_getAllPlaylists + query),
                 Method = HttpMethod.Get
             };
+            await UpdateAccessToken();
             request.Headers.Authorization =
                 new AuthenticationHeaderValue(_keycloakAuthResponse.TokenType, _keycloakAuthResponse.AccessToken);
 

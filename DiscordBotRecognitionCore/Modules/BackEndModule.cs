@@ -37,11 +37,19 @@ namespace DiscordBotRecognitionCore.Modules
             var response = await Service.GetPublicPlaylistsByUsers(users);
             if (response.Count > 0)
             {
-                await ReplyAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
+                await SendFormattedMessage(
+                    string.Join("\n", 
+                    response
+                    .GroupBy(p => p.DiscordIdentity)
+                    .Select(group => $"Плейлисты пользователя {group.Key}\n" + string.Join(
+                        "\n", 
+                        group.Select((p, id) => $"\t{id + 1}) {p.Name}, Tracks = {p.TracksCount}")))
+                    )
+                    );
             }
             else
             {
-                await ReplyAsync("No playlists found");
+                await SendFormattedMessage("No playlists found");
             }
         }
 
@@ -50,12 +58,12 @@ namespace DiscordBotRecognitionCore.Modules
         public async Task GetMusicServices()
         {
             var response = await Service.GetMusicServices();
-            await ReplyAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
+            await SendFormattedMessage(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
         }
 
         [Command("availableplaylists")]
         [Alias("ap")]
-        [Summary("Retrieves all posible playlists for you")]
+        [Summary("Retrieves all possible playlists for you")]
         public async Task GetAllPlaylists([Remainder] string query = "")
         {
             IEnumerable<string> users = null;
@@ -76,7 +84,14 @@ namespace DiscordBotRecognitionCore.Modules
             var channel = await Context.User.GetOrCreateDMChannelAsync();
             if (response.Any())
             {
-                await channel.SendMessageAsync(string.Join(",\n", response.Select((p, i) => $"{i + 1}) {p}")));
+                var mes = string.Join("\n",
+                    response
+                    .GroupBy(p => p.DiscordIdentity)
+                    .Select(group => $"Плейлисты пользователя {group.Key}\n" + string.Join(
+                        "\n",
+                        group.Select((p, id) => $"\t{id + 1}) {p.Name}, Tracks = {p.TracksCount}")))
+                    );
+                await channel.SendMessageAsync($"```\n{mes}\n```");
             }
             else
             {
@@ -92,7 +107,7 @@ namespace DiscordBotRecognitionCore.Modules
             var playlistName = Regex.Replace(query, @"<@!\d+>", string.Empty).Trim();
             if (playlistName == "")
             {
-                await ReplyAsync("Playlist did not specified");
+                await SendFormattedMessage("Playlist did not specified");
                 return;
             }
             var requestedIdentities = Context.Message.MentionedUsers.Select(u => u.ToString());
@@ -106,7 +121,7 @@ namespace DiscordBotRecognitionCore.Modules
             switch(response.Count)
             {
                 case 0:
-                    await ReplyAsync($"```\nNo playlists found!\n```");
+                    await SendFormattedMessage($"```\nNo playlists found!\n```");
                     break;
                 case 1:
                     {
@@ -128,7 +143,7 @@ namespace DiscordBotRecognitionCore.Modules
                             group.Queue.AddSong(s.GetAwaiter().GetResult());
                             if (isFirst)
                             {
-                                await ReplyAsync($"```\nPlaylist added! {playlist.Name}, {playlist.DiscordIdentity}, Count = {playlist.Tracks.Count}\n```");
+                                await SendFormattedMessage($"```\nPlaylist added! {playlist.Name}, {playlist.DiscordIdentity}, Count = {playlist.Tracks.Count}\n```");
                                 group.Play(false);
                                 isFirst = false;
                             }
@@ -141,7 +156,7 @@ namespace DiscordBotRecognitionCore.Modules
                         //{
                         //    group = await Connect();
                         //}
-                        await ReplyAsync($"```\nMany playlists\n```");
+                        await SendFormattedMessage($"```\nMany playlists\n```");
                         //group.Queue.AddSong(song);
                         //group.Play(false);
                     }

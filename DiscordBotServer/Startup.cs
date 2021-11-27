@@ -25,7 +25,10 @@ namespace DiscordBotServer
         private DiscordBot BuildBot()
         {
             var greet = "Привет";
-            var buildTask = DiscordBot.DefaultBuild(greet, Configuration["GOOGLE_API_KEY"], Configuration["KEYCLOAK_SECRET"]);
+            var buildTask = DiscordBot.DefaultBuild(
+                greet, 
+                Configuration["GOOGLE_API_KEY"], 
+                Configuration["KEYCLOAK_SECRET"]);
             var bot = buildTask.GetAwaiter().GetResult();
 
             var startTask = bot.Start(Configuration["DISCORD_TOKEN"]);
