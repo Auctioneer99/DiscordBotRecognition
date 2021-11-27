@@ -95,7 +95,7 @@ namespace DiscordBotRecognitionCore.Modules
             }
             else
             {
-                await channel.SendMessageAsync("No available playlists");
+                await channel.SendMessageAsync("```\nNo available playlists\n```");
             }
         }
 
@@ -121,7 +121,7 @@ namespace DiscordBotRecognitionCore.Modules
             switch(response.Count)
             {
                 case 0:
-                    await SendFormattedMessage($"```\nNo playlists found!\n```");
+                    await SendFormattedMessage($"No playlists found!");
                     break;
                 case 1:
                     {
@@ -143,7 +143,7 @@ namespace DiscordBotRecognitionCore.Modules
                             group.Queue.AddSong(s.GetAwaiter().GetResult());
                             if (isFirst)
                             {
-                                await SendFormattedMessage($"```\nPlaylist added! {playlist.Name}, {playlist.DiscordIdentity}, Count = {playlist.Tracks.Count}\n```");
+                                await SendFormattedMessage($"Playlist added! {playlist.Name}, {playlist.DiscordIdentity}, Count = {playlist.Tracks.Count}");
                                 group.Play(false);
                                 isFirst = false;
                             }
@@ -156,7 +156,7 @@ namespace DiscordBotRecognitionCore.Modules
                         //{
                         //    group = await Connect();
                         //}
-                        await SendFormattedMessage($"```\nMany playlists\n```");
+                        await SendFormattedMessage($"Many playlists");
                         //group.Queue.AddSong(song);
                         //group.Play(false);
                     }
