@@ -14,10 +14,10 @@ namespace DiscordBotRecognitionCore.BackEnd
     public class BackEndService
     {
         private string _domain = "https://apollon-music-resource-server.herokuapp.com";
-        private string _discordget => $"{_domain}/public/api/v1/playlists/discord?pageNumber=0&pageSize=10&sortBy=id";
+        private string _discordget => $"{_domain}/public/api/v1/playlists?pageNumber=0&pageSize=10&sortBy=id";
         private string _playlistById => $"{_domain}/admin/api/v1/playlists/";
         private string _getMusicServices => $"{_domain}/public/api/v1/music-services";
-        private string _getAllPlaylists => $"{_domain}/admin/api/v1/playlists/discord?pageNumber=0&pageSize=10&sortBy=id";
+        private string _getAllPlaylists => $"{_domain}/admin/api/v1/playlists?pageNumber=0&pageSize=10&sortBy=id";
         private string _authPath => $"https://apollon-music-keycloak.herokuapp.com/auth/realms/apollon-music/protocol/openid-connect/token";
 
 
